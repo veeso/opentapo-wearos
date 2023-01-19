@@ -5,4 +5,12 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">Hello Square World!</string>
+    <string name="login_activity_email">Email Address</string>
+    <string name="login_activity_email_input">enter email</string>
+    <string name="login_activity_password">Password</string>
+    <string name="login_activity_password_input">enter password</string>
+    <string name="login_activity_save_password">Save password</string>
+    <string name="login_activity_submit">Sign In</string>
+    <string name="activity_login_signin_error">Invalid username or password</string>
+    <string name="activity_login_input_field_empty">You must provide valid credentials</string>
 </resources>

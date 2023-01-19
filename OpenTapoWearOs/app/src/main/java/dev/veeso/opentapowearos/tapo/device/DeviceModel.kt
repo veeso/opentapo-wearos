@@ -5,5 +5,22 @@ enum class DeviceModel {
     L530,
     P100,
     P110,
-    GENERIC
+    GENERIC;
+
+    companion object {
+        fun fromName(name: String): DeviceModel {
+            return if (name.startsWith("L510")) {
+                L510
+            } else if (name.startsWith("L530")) {
+                L530
+            } else if (name.startsWith("P100")) {
+                P100
+            } else if (name.startsWith("P110")) {
+                P110
+            } else {
+                GENERIC
+            }
+        }
+    }
+
 }

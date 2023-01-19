@@ -1,18 +1,12 @@
 package dev.veeso.opentapowearos.tapo.device
 
 import dev.veeso.opentapowearos.tapo.api.request.TapoRequest
-import dev.veeso.opentapowearos.tapo.api.request.params.GetDeviceInfo
-import dev.veeso.opentapowearos.tapo.api.response.params.getdeviceinfo.GenericDeviceInfoResult
 
 class P100(
-    ipAddress: String,
-    username: String,
-    password: String,
-) : Device(DeviceType.PLUG, DeviceModel.P100, ipAddress, username, password) {
-
-    suspend fun getDeviceInfo(): Result<GenericDeviceInfoResult> {
-        val request = GetDeviceInfo()
-        return send(TapoRequest(request), GenericDeviceInfoResult::class.java).toResult()
-    }
+    appServerUrl: String,
+    token: String,
+    deviceAlias: String,
+    deviceId: String,
+) : Device(appServerUrl, token, deviceAlias, deviceId, DeviceType.PLUG, DeviceModel.P100) {
 
 }
