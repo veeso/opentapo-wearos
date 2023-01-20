@@ -105,6 +105,7 @@ class MainActivity : Activity() {
         Log.d(TAG, String.format("Signing in as %s", username))
         val client = TapoClient()
         client.login(username, password)
+        this.credentials = Credentials(client.token!!)
         discoverDevices(client)
     }
 

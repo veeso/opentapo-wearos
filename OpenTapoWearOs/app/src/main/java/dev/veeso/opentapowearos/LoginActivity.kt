@@ -5,9 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
@@ -72,25 +72,7 @@ class LoginActivity : Activity() {
         )
 
         if (username.isNotEmpty() && password.isNotEmpty()) {
-            runBlocking {
-                withContext(Dispatchers.IO) {
-                    try {
-                        val credentials = login(username, password)
-                        Log.d(TAG, "Login successful. Saving credentials to shared preferences")
-                        saveCredentialsToPrefs(username, password, savePassword)
-                        // return to main activity
-                        val intent = Intent()
-                        intent.putExtra(INTENT_OUTPUT, credentials)
-                        setResult(RESULT_OK, intent)
-                        finish()
-                    } catch (e: Exception) {
-                        Log.d(TAG, String.format("Login failed: %s", e))
-                        runOnUiThread {
-                            setError(getString(R.string.activity_login_signin_error))
-                        }
-                    }
-                }
-            }
+            doSignIn(username, password, savePassword)
         } else {
             setError(getString(R.string.activity_login_input_field_empty))
         }
@@ -127,6 +109,28 @@ class LoginActivity : Activity() {
             val password = sharedPrefs.getString(MainActivity.SHARED_PREFS_PASSWORD, "")
             val passwordText: EditText = findViewById(R.id.signin_password)
             passwordText.setText(password)
+        }
+    }
+
+    private fun doSignIn(username: String, password: String, savePassword: Boolean) {
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                try {
+                    val credentials = login(username, password)
+                    Log.d(TAG, "Login successful. Saving credentials to shared preferences")
+                    saveCredentialsToPrefs(username, password, savePassword)
+                    // return to main activity
+                    val intent = Intent()
+                    intent.putExtra(INTENT_OUTPUT, credentials)
+                    setResult(RESULT_OK, intent)
+                    finish()
+                } catch (e: Exception) {
+                    Log.d(TAG, String.format("Login failed: %s", e))
+                    runOnUiThread {
+                        setError(getString(R.string.activity_login_signin_error))
+                    }
+                }
+            }
         }
     }
 

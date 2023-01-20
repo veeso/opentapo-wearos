@@ -48,7 +48,7 @@ class TapoClient {
         val params = ApiRequest(
             LOGIN_METHOD,
             LoginParams(
-                email, password, terminalUUID, "Tapo_Android"
+                email, password, terminalUUID
             )
         )
 
@@ -64,7 +64,7 @@ class TapoClient {
     }
 
     suspend fun discoverDevices(): List<Device> {
-        val data: ApiResponse<GetDeviceListResult> = post(ApiRequest(DISCOVER_METHOD, EmptyParams))
+        val data: ApiResponse<GetDeviceListResult> = post(ApiRequest(DISCOVER_METHOD, EmptyParams()))
 
         if (data.error_code == 0 && data.result != null) {
             Log.d(
@@ -77,7 +77,9 @@ class TapoClient {
 
             return data.result.deviceList.map {
                 val model = DeviceModel.fromName(it.deviceModel)
-                val alias = Base64.getDecoder().decode(it.alias).toString()
+                val alias = String(
+                    Base64.getDecoder().decode(it.alias)
+                )
                 when (model) {
                     DeviceModel.GENERIC -> Generic(
                         it.appServerUrl,
@@ -118,7 +120,8 @@ class TapoClient {
     }
 
     private suspend inline fun <reified T, reified U> post(request: ApiRequest<T>): U {
-        val payload = Json.encodeToString(request)
+        val serializer = Json { encodeDefaults = true }
+        val payload = serializer.encodeToString(request)
         Log.d(TAG, String.format("Sending out payload '%s'", payload))
         val response = client.post(getUrl()) {
             contentType(ContentType.Application.Json)
@@ -138,8 +141,8 @@ class TapoClient {
         val bodyStr = response.body<String>()
         Log.d(TAG, String.format("Request response: '%s'", bodyStr))
 
-        val serializer = Json { ignoreUnknownKeys = true }
-        return serializer.decodeFromString(response.body())
+        val deserializer = Json { ignoreUnknownKeys = true }
+        return deserializer.decodeFromString(response.body())
     }
 
     private fun getUrl(): String {

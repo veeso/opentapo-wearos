@@ -13,5 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="32dp"
+        android:paddingVertical="16dp"
         app:layoutManager="LinearLayoutManager" />
 </androidx.wear.widget.BoxInsetLayout>
