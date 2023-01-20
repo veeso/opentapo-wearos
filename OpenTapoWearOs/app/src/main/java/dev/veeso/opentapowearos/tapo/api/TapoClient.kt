@@ -64,7 +64,8 @@ class TapoClient {
     }
 
     suspend fun discoverDevices(): List<Device> {
-        val data: ApiResponse<GetDeviceListResult> = post(ApiRequest(DISCOVER_METHOD, EmptyParams()))
+        val data: ApiResponse<GetDeviceListResult> =
+            post(ApiRequest(DISCOVER_METHOD, EmptyParams()))
 
         if (data.error_code == 0 && data.result != null) {
             Log.d(
@@ -93,7 +94,25 @@ class TapoClient {
                         alias,
                         it.deviceId,
                     )
+                    DeviceModel.L520 -> L520(
+                        it.appServerUrl,
+                        this.token!!,
+                        alias,
+                        it.deviceId,
+                    )
                     DeviceModel.L530 -> L530(
+                        it.appServerUrl,
+                        this.token!!,
+                        alias,
+                        it.deviceId,
+                    )
+                    DeviceModel.L610 -> L610(
+                        it.appServerUrl,
+                        this.token!!,
+                        alias,
+                        it.deviceId,
+                    )
+                    DeviceModel.L630 -> L630(
                         it.appServerUrl,
                         this.token!!,
                         alias,
