@@ -13,8 +13,8 @@ internal class DeviceListAdapter(private val devices: List<Device>) : RecyclerVi
     var onItemClick: ((Device) -> Unit)? = null
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val deviceAliasText: TextView = view.findViewById(R.id.deviceAlias)
-        val deviceModelText: TextView = view.findViewById(R.id.deviceModel)
+        val deviceAliasText: TextView = view.findViewById(R.id.device_list_item_alias)
+        val deviceModelText: TextView = view.findViewById(R.id.device_list_item_model)
 
         init {
             itemView.setOnClickListener {

@@ -11,6 +11,7 @@ abstract class Device(
     deviceModel: DeviceModel,
 ) {
 
+    val endpoint: String
     val alias: String
     val id: String
     val model: DeviceModel
@@ -18,6 +19,7 @@ abstract class Device(
     private val client: TapoClient
 
     init {
+        this.endpoint = appServerUrl
         this.alias = deviceAlias
         this.id = deviceId
         this.model = deviceModel

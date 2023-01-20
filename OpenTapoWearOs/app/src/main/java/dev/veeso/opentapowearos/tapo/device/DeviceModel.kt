@@ -1,5 +1,6 @@
 package dev.veeso.opentapowearos.tapo.device
 
+@kotlinx.serialization.Serializable
 enum class DeviceModel {
     L510,
     L520,

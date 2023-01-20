@@ -8,7 +8,7 @@ class L630(
     token: String,
     deviceAlias: String,
     deviceId: String,
-) : Device(appServerUrl, token, deviceAlias, deviceId, DeviceType.LIGHT_BULB, DeviceModel.L530) {
+) : Device(appServerUrl, token, deviceAlias, deviceId, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
 
     suspend fun setBrightness(brightness: UInt) {
         TODO("impl")

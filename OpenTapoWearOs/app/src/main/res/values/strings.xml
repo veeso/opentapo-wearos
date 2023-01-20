@@ -13,4 +13,5 @@
     <string name="login_activity_submit">Sign In</string>
     <string name="activity_login_signin_error">Invalid username or password</string>
     <string name="activity_login_input_field_empty">You must provide valid credentials</string>
+    <string name="device_activity_power">Power: %s</string>
 </resources>

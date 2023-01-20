@@ -11,6 +11,7 @@ import dev.veeso.opentapowearos.databinding.ActivityMainBinding
 import dev.veeso.opentapowearos.tapo.api.TapoClient
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.view.Credentials
+import dev.veeso.opentapowearos.view.DeviceData
 import dev.veeso.opentapowearos.view.DeviceListAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -71,7 +72,14 @@ class MainActivity : Activity() {
         deviceList.layoutManager = LinearLayoutManager(this)
 
         devicesAdapter.onItemClick = {
-            Log.d(TAG, String.format("Clicked on device %s", it.alias))
+            Log.d(TAG, String.format("Clicked on device %s; starting DeviceActivity", it.alias))
+            val intent = Intent(this, DeviceActivity::class.java)
+            intent.putExtra(
+                DeviceActivity.INTENT_NAME, DeviceData(
+                    it.endpoint, this.credentials!!.token, it.alias, it.id, it.model
+                )
+            )
+            startActivity(intent)
         }
     }
 
@@ -91,13 +99,18 @@ class MainActivity : Activity() {
         }
         if (username != null && password != null) {
             // login and discover devices
+            val fallbackIntent = Intent(this, LoginActivity::class.java)
             runBlocking {
                 withContext(Dispatchers.IO) {
-                    login(username, password)
-                    // TODO: handle error
+                    try {
+                        login(username, password)
+                    } catch (e: Exception) {
+                        runOnUiThread {
+                            startActivity(fallbackIntent)
+                        }
+                    }
                 }
             }
-
         }
     }
 

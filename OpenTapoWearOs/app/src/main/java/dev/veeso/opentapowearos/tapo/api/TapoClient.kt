@@ -81,56 +81,7 @@ class TapoClient {
                 val alias = String(
                     Base64.getDecoder().decode(it.alias)
                 )
-                when (model) {
-                    DeviceModel.GENERIC -> Generic(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId
-                    )
-                    DeviceModel.L510 -> L510(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId,
-                    )
-                    DeviceModel.L520 -> L520(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId,
-                    )
-                    DeviceModel.L530 -> L530(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId,
-                    )
-                    DeviceModel.L610 -> L610(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId,
-                    )
-                    DeviceModel.L630 -> L630(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId,
-                    )
-                    DeviceModel.P100 -> P100(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId
-                    )
-                    DeviceModel.P110 -> P110(
-                        it.appServerUrl,
-                        this.token!!,
-                        alias,
-                        it.deviceId
-                    )
-                }
+                DeviceBuilder.buildDevice(it.appServerUrl, this.token!!, alias, it.deviceId, model)
             }
 
         } else {
