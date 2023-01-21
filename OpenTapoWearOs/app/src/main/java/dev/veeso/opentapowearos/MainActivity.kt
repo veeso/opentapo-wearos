@@ -8,7 +8,8 @@ import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.databinding.ActivityMainBinding
-import dev.veeso.opentapowearos.tapo.api.TapoClient
+import dev.veeso.opentapowearos.net.IpFinder
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.view.Credentials
 import dev.veeso.opentapowearos.view.DeviceData
@@ -48,7 +49,7 @@ class MainActivity : Activity() {
                 // discover devices
                 runBlocking {
                     withContext(Dispatchers.IO) {
-                        val client = TapoClient(TapoClient.BASE_URL, credentials.token)
+                        val client = TpLinkCloudClient(TpLinkCloudClient.BASE_URL, credentials.token)
                         discoverDevices(client) // TODO: handle error
                     }
                 }
@@ -76,7 +77,7 @@ class MainActivity : Activity() {
             val intent = Intent(this, DeviceActivity::class.java)
             intent.putExtra(
                 DeviceActivity.INTENT_NAME, DeviceData(
-                    it.endpoint, this.credentials!!.token, it.alias, it.id, it.model
+                    it.alias, it.id, it.model, it.macAddress, it.ipAddr!!.hostName
                 )
             )
             startActivity(intent)
@@ -116,13 +117,14 @@ class MainActivity : Activity() {
 
     private suspend fun login(username: String, password: String) {
         Log.d(TAG, String.format("Signing in as %s", username))
-        val client = TapoClient()
+        val client = TpLinkCloudClient()
         client.login(username, password)
         this.credentials = Credentials(client.token!!)
         discoverDevices(client)
     }
 
-    private suspend fun discoverDevices(client: TapoClient) {
+    private suspend fun discoverDevices(client: TpLinkCloudClient) {
+        this.devices.clear()
         client.discoverDevices().forEach {
             Log.d(
                 TAG,
@@ -130,7 +132,39 @@ class MainActivity : Activity() {
             )
             this.devices.add(it)
         }
+        discoverDevicesIpAddress()
     }
+
+    private suspend fun discoverDevicesIpAddress() {
+        val ipDiscoveryService = IpFinder(
+            this.devices.map {
+                it.macAddress
+            }
+        )
+        Log.d(TAG, "Getting local address")
+        val networkAddress = getNetworkAddress()
+        Log.d(TAG, String.format("Found local device address %s/%s", networkAddress.first, networkAddress.second))
+        ipDiscoveryService.scanNetwork(networkAddress.first, networkAddress.second)
+        Log.d(TAG, "Running ip discovery service")
+        // assign addresses
+        this.devices.forEach {
+            val ip = ipDiscoveryService.hosts[it.macAddress]
+            if (ip != null) {
+                it.setIpAddress(ip)
+            }
+        }
+        // remove devices without ip address (offline)
+        this.devices = this.devices.filter {
+            it.ipAddr != null
+        }.toMutableList()
+        Log.d(TAG, String.format("Found IP address for %d devices", this.devices.size))
+    }
+
+    private fun getNetworkAddress(): Pair<String, String> {
+        TODO()
+    }
+
+
 
     companion object {
         const val TAG = "MainActivity"

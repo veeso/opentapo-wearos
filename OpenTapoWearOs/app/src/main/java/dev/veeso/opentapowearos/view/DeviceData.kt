@@ -5,27 +5,27 @@ import android.os.Parcelable
 import dev.veeso.opentapowearos.tapo.device.DeviceModel
 
 class DeviceData(
-    val appServerUrl: String,
-    val token: String,
     val alias: String,
     val id: String,
-    val model: DeviceModel
+    val model: DeviceModel,
+    val macAddress: String,
+    val ipAddress: String,
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        appServerUrl = parcel.readString()!!,
-        token = parcel.readString()!!,
         alias = parcel.readString()!!,
         id = parcel.readString()!!,
-        model = parcel.readSerializable()!! as DeviceModel
+        model = parcel.readSerializable()!! as DeviceModel,
+        macAddress = parcel.readString()!!,
+        ipAddress = parcel.readString()!!
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(appServerUrl)
-        parcel.writeString(token)
         parcel.writeString(alias)
         parcel.writeString(id)
         parcel.writeSerializable(model)
+        parcel.writeString(macAddress)
+        parcel.writeString(ipAddress)
     }
 
     override fun describeContents(): Int {

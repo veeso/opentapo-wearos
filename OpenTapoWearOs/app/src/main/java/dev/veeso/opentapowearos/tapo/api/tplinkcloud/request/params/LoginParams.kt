@@ -1,4 +1,4 @@
-package dev.veeso.opentapowearos.tapo.api.request.params
+package dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.params
 
 import kotlinx.serialization.Serializable
 

@@ -36,12 +36,12 @@ class DeviceActivity : Activity() {
 
     private fun setDeviceFromData(deviceData: DeviceData) {
         this.device = DeviceBuilder.buildDevice(
-            deviceData.appServerUrl,
-            deviceData.token,
             deviceData.alias,
             deviceData.id,
-            deviceData.model
-        )
+            deviceData.macAddress,
+            deviceData.model,
+            )
+        // TODO set ip
     }
 
     private fun populateView() {

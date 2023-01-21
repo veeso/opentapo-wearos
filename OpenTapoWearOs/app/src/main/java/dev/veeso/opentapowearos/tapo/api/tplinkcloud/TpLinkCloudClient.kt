@@ -1,14 +1,15 @@
-package dev.veeso.opentapowearos.tapo.api
+package dev.veeso.opentapowearos.tapo.api.tplinkcloud
 
 import android.util.Log
-import dev.veeso.opentapowearos.tapo.api.request.ApiRequest
-import dev.veeso.opentapowearos.tapo.api.request.DISCOVER_METHOD
-import dev.veeso.opentapowearos.tapo.api.request.EmptyParams
-import dev.veeso.opentapowearos.tapo.api.request.LOGIN_METHOD
-import dev.veeso.opentapowearos.tapo.api.request.params.LoginParams
-import dev.veeso.opentapowearos.tapo.api.response.ApiResponse
-import dev.veeso.opentapowearos.tapo.api.response.result.GetDeviceListResult
-import dev.veeso.opentapowearos.tapo.api.response.result.LoginResult
+import dev.veeso.opentapowearos.net.NetworkUtils
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.ApiRequest
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.DISCOVER_METHOD
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.EmptyParams
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.LOGIN_METHOD
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.params.LoginParams
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.ApiResponse
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.result.GetDeviceListResult
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.result.LoginResult
 import dev.veeso.opentapowearos.tapo.device.*
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -21,7 +22,7 @@ import kotlinx.serialization.decodeFromString
 import java.util.Base64
 import java.util.UUID
 
-class TapoClient {
+class TpLinkCloudClient {
 
     private var url: String
     private val terminalUUID: String = UUID.randomUUID().toString()
@@ -81,7 +82,13 @@ class TapoClient {
                 val alias = String(
                     Base64.getDecoder().decode(it.alias)
                 )
-                DeviceBuilder.buildDevice(it.appServerUrl, this.token!!, alias, it.deviceId, model)
+                val macAddress = NetworkUtils.convertMacFromTapo(it.deviceMac)
+                DeviceBuilder.buildDevice(
+                    alias,
+                    it.deviceId,
+                    macAddress,
+                    model
+                )
             }
 
         } else {

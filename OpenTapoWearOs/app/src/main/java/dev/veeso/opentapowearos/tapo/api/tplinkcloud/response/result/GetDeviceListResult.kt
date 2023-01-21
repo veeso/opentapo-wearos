@@ -1,4 +1,4 @@
-package dev.veeso.opentapowearos.tapo.api.response.result
+package dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.result
 
 @kotlinx.serialization.Serializable
 data class GetDeviceListResult(val deviceList: List<DeviceResult>)
@@ -10,4 +10,5 @@ data class DeviceResult(
     val alias: String,
     val deviceModel: String,
     val deviceType: String,
+    val deviceMac: String,
 )

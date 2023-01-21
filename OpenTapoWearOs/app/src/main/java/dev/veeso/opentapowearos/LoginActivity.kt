@@ -7,11 +7,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Switch
 import android.widget.TextView
-import dev.veeso.opentapowearos.tapo.api.TapoClient
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.view.Credentials
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -135,7 +134,7 @@ class LoginActivity : Activity() {
     }
 
     private suspend fun login(username: String, password: String): Credentials {
-        val client = TapoClient()
+        val client = TpLinkCloudClient()
         client.login(username, password)
 
         return Credentials(client.token!!)

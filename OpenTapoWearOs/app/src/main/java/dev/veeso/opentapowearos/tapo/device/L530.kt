@@ -1,14 +1,12 @@
 package dev.veeso.opentapowearos.tapo.device
 
-import dev.veeso.opentapowearos.tapo.api.request.TapoRequest
-import dev.veeso.opentapowearos.tapo.api.request.params.Color
+import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.params.Color
 
 class L530(
-    appServerUrl: String,
-    token: String,
     deviceAlias: String,
     deviceId: String,
-) : Device(appServerUrl, token, deviceAlias, deviceId, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
+    deviceMac: String,
+) : Device(deviceAlias, deviceId, deviceMac, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
 
     suspend fun setBrightness(brightness: UInt) {
         TODO("impl")
