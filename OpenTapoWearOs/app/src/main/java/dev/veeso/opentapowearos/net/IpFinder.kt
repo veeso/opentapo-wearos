@@ -20,7 +20,9 @@ class IpFinder(deviceMacList: List<String>) {
 
         val devicesToFind = deviceMacList.toMutableList()
         val networkAddress = NetworkUtils.getNetworkAddress(deviceIp, deviceMask)
+        Log.d(TAG, String.format("Found network address: %s", networkAddress))
         val broadcastAddress = NetworkUtils.getBroadcastAddress(deviceIp, deviceMask)
+        Log.d(TAG, String.format("Found broadcast address: %s", broadcastAddress))
         Log.d(TAG, String.format("Scanning network %s", networkAddress))
 
         var workingAddress = NetworkUtils.incrementAddress(networkAddress)
@@ -29,10 +31,13 @@ class IpFinder(deviceMacList: List<String>) {
             // skip same address
             Log.d(TAG, String.format("Getting MAC for %s", workingAddress))
             if (workingAddress.isReachable(1000)) {
+                Log.d(TAG, String.format("Device at %s is reachable", workingAddress))
                 val macAddress = getMacAddressFromIP(workingAddress.hostName)
+                Log.d(TAG, String.format("%s has MAC %s", workingAddress, macAddress))
                 if (macAddress != null && devicesToFind.contains(macAddress)) {
                     Log.d(TAG, String.format("Found MAC %s for %s", macAddress, workingAddress))
-                    this.hosts[macAddress] = Inet4Address.getByName(workingAddress.hostName) as Inet4Address
+                    this.hosts[macAddress] =
+                        Inet4Address.getByName(workingAddress.hostName) as Inet4Address
                     // remove mac from devices to find
                     devicesToFind.remove(macAddress)
                 }
@@ -44,7 +49,6 @@ class IpFinder(deviceMacList: List<String>) {
     }
 
     private fun getMacAddressFromIP(ipFinding: String): String? {
-        Log.d(TAG, "Scan was started!")
         var bufferedReader: BufferedReader? = null
         try {
             bufferedReader = BufferedReader(FileReader("/proc/net/arp"))
