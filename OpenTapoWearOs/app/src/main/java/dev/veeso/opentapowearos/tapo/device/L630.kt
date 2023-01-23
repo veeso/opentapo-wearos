@@ -6,7 +6,7 @@ class L630(
     deviceAlias: String,
     deviceId: String,
     deviceMac: String,
-) : Device(deviceAlias, deviceId, deviceMac, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
+) : Device(deviceAlias, deviceId, deviceMac, DeviceType.RGB_LIGHT_BULB, DeviceModel.L630) {
 
     suspend fun setBrightness(brightness: UInt) {
         TODO("impl")
