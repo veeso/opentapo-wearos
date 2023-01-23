@@ -7,6 +7,11 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.databinding.ActivityMainBinding
@@ -56,15 +61,11 @@ class MainActivity : Activity() {
                 Log.d(TAG, "Got credentials from login activity")
                 this.credentials = credentials
                 // discover devices
-                runBlocking {
-                    withContext(Dispatchers.IO) {
-                        try {
-                            discoverDevices()
-                        } catch (e: Exception) {
-                            Log.e(TAG, String.format("Failed to discover devices: %s", e))
-                            // TODO: show error message
-                        }
-                    }
+                try {
+                    discoverDevices()
+                } catch (e: Exception) {
+                    Log.e(TAG, String.format("Failed to discover devices: %s", e))
+                    setMessageBox(visible = true, searching = false)
                 }
             } else {
                 Log.d(
@@ -118,13 +119,13 @@ class MainActivity : Activity() {
         discoverDevices()
     }
 
-    private suspend fun discoverDevices() {
+    private fun discoverDevices() {
         this.devices.clear()
         discoverDevicesOnLocalNetwork()
         populateDeviceList()
     }
 
-    private suspend fun discoverDevicesOnLocalNetwork() {
+    private fun discoverDevicesOnLocalNetwork() {
         val deviceScanner = DeviceScanner(
             credentials!!.username,
             credentials!!.password
@@ -147,21 +148,49 @@ class MainActivity : Activity() {
     }
 
     private fun populateDeviceList() {
-        val deviceList: RecyclerView = findViewById(R.id.deviceList)
-        val devicesAdapter = DeviceListAdapter(devices)
-        deviceList.adapter = devicesAdapter
-        deviceList.layoutManager = LinearLayoutManager(this)
+        if (devices.isEmpty()) {
+            setMessageBox(visible = true, searching = false)
+        } else {
+            setMessageBox(visible = false, searching = false)
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+            val devicesAdapter = DeviceListAdapter(devices)
+            deviceList.adapter = devicesAdapter
+            deviceList.layoutManager = LinearLayoutManager(this)
 
-        devicesAdapter.onItemClick = {
-            Log.d(TAG, String.format("Clicked on device %s; starting DeviceActivity", it.alias))
-            val intent = Intent(this, DeviceActivity::class.java)
-            intent.putExtra(
-                DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
-                    it.alias, it.id, it.model, it.endpoint
+            devicesAdapter.onItemClick = {
+                Log.d(TAG, String.format("Clicked on device %s; starting DeviceActivity", it.alias))
+                val intent = Intent(this, DeviceActivity::class.java)
+                intent.putExtra(
+                    DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
+                        it.alias, it.id, it.model, it.endpoint
+                    )
                 )
-            )
-            intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
-            startActivity(intent)
+                intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
+                startActivity(intent)
+            }
+        }
+    }
+
+    private fun setMessageBox(visible: Boolean, searching: Boolean) {
+        if (visible) {
+            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            messageBox.visibility = View.VISIBLE
+            if (searching) {
+                val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+                progress.visibility = View.VISIBLE
+                val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+                alertIcon.visibility = View.INVISIBLE
+            } else {
+                val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+                alertIcon.visibility = View.VISIBLE
+                val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+                progress.visibility = View.INVISIBLE
+                val message: TextView = findViewById(R.id.activity_main_message)
+                message.text = R.string.main_activity_not_found.toString()
+            }
+        } else {
+            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            messageBox.visibility = View.INVISIBLE
         }
     }
 

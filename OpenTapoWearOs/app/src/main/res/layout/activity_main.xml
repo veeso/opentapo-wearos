@@ -5,11 +5,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
+    android:id="@+id/main_activity"
     tools:context=".MainActivity"
     tools:deviceIds="wear">
 
+    <LinearLayout
+        android:id="@+id/activity_main_message_box"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:id="@+id/activity_main_progressbar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/activity_main_device_not_found"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:visibility="invisible"
+            android:contentDescription="@string/activity_main_not_found" />
+
+        <TextView
+            android:id="@+id/activity_main_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/main_activity_loading"
+            android:textColor="#ffffff"
+            android:textSize="14sp"
+            android:visibility="visible" />
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/deviceList"
+        android:id="@+id/activity_main_device_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="32dp"
