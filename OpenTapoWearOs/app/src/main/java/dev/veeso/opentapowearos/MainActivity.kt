@@ -37,8 +37,6 @@ class MainActivity : Activity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        readCredentialsFromPrefs()
     }
 
     override fun onResume() {
@@ -46,7 +44,12 @@ class MainActivity : Activity() {
 
         Log.d(TAG, "onResume")
 
-        // read credentials from intent
+        // try to read from prefs
+        if (this.credentials == null) {
+            readCredentialsFromPrefs()
+        }
+
+        // if still NULL; try to read from intent
         if (this.credentials == null) {
             val credentials = intent.getParcelableExtra<Credentials>(LoginActivity.INTENT_OUTPUT)
             if (credentials != null) {
@@ -55,7 +58,12 @@ class MainActivity : Activity() {
                 // discover devices
                 runBlocking {
                     withContext(Dispatchers.IO) {
-                        discoverDevices() // TODO: handle error
+                        try {
+                            discoverDevices()
+                        } catch (e: Exception) {
+                            Log.e(TAG, String.format("Failed to discover devices: %s", e))
+                            // TODO: show error message
+                        }
                     }
                 }
             } else {
@@ -64,12 +72,6 @@ class MainActivity : Activity() {
                     "Credentials not in intent and not in preferences. Starting LoginActivity"
                 )
                 startActivity(Intent(this, LoginActivity::class.java))
-            }
-        } else {
-            runBlocking {
-                withContext(Dispatchers.IO) {
-                    discoverDevices() // TODO: handle error
-                }
             }
         }
     }

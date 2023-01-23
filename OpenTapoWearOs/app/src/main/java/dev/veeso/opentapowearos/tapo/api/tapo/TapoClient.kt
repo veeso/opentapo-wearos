@@ -21,6 +21,7 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.engine.android.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cookies.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
@@ -35,6 +36,7 @@ class TapoClient {
     private val terminalUUID: String = "00-00-00-00-00-00"
     private val client: HttpClient = HttpClient(Android) {
         install(HttpCookies)
+        install(HttpTimeout)
     }
     private lateinit var crypter: Crypter
 
@@ -149,6 +151,9 @@ class TapoClient {
         val response = client.post(getUrl()) {
             contentType(ContentType.Application.Json)
             setBody(payload)
+            timeout {
+                requestTimeoutMillis = 3000
+            }
         }
 
         Log.d(TAG, String.format("Request status: %d", response.status.value))
