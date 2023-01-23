@@ -1,5 +1,6 @@
 package dev.veeso.opentapowearos.tapo.device
 
+import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import java.net.Inet4Address
 
@@ -17,8 +18,7 @@ abstract class Device(
     val model: DeviceModel
     val type: DeviceType
 
-    var ipAddr: Inet4Address? = null
-    private lateinit var client: TpLinkCloudClient // TODO change to TapoClient
+    private lateinit var client: TapoClient
 
     init {
         this.alias = deviceAlias
@@ -26,11 +26,6 @@ abstract class Device(
         this.macAddress = deviceMac
         this.model = deviceModel
         this.type = deviceType
-    }
-
-    fun setIpAddress(ipAddress: Inet4Address) {
-        this.ipAddr = ipAddress
-        TODO()
     }
 
     suspend fun on() {

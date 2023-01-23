@@ -10,7 +10,7 @@ import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.databinding.ActivityMainBinding
-import dev.veeso.opentapowearos.net.IpFinder
+import dev.veeso.opentapowearos.net.DeviceScanner
 import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.tapo.device.Device
@@ -56,9 +56,7 @@ class MainActivity : Activity() {
                 // discover devices
                 runBlocking {
                     withContext(Dispatchers.IO) {
-                        val client =
-                            TpLinkCloudClient(TpLinkCloudClient.BASE_URL, credentials.token)
-                        discoverDevices(client) // TODO: handle error
+                        discoverDevices() // TODO: handle error
                     }
                 }
             } else {
@@ -67,6 +65,12 @@ class MainActivity : Activity() {
                     "Credentials not in intent and not in preferences. Starting LoginActivity"
                 )
                 startActivity(Intent(this, LoginActivity::class.java))
+            }
+        } else {
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    discoverDevices() // TODO: handle error
+                }
             }
         }
     }
@@ -109,28 +113,20 @@ class MainActivity : Activity() {
         Log.d(TAG, String.format("Signing in as %s", username))
         val client = TpLinkCloudClient()
         client.login(username, password)
-        this.credentials = Credentials(client.token!!)
-        discoverDevices(client)
+        this.credentials = Credentials(username, password)
+        discoverDevices()
     }
 
-    private suspend fun discoverDevices(client: TpLinkCloudClient) {
+    private suspend fun discoverDevices() {
         this.devices.clear()
-        client.discoverDevices().forEach {
-            Log.d(
-                TAG,
-                String.format("Found a new device of type %s with alias %s", it.model, it.alias)
-            )
-            this.devices.add(it)
-        }
-        discoverDevicesIpAddress()
+        discoverDevicesOnLocalNetwork()
         populateDeviceList()
     }
 
-    private suspend fun discoverDevicesIpAddress() {
-        val ipDiscoveryService = IpFinder(
-            this.devices.map {
-                it.macAddress
-            }
+    private suspend fun discoverDevicesOnLocalNetwork() {
+        val deviceScanner = DeviceScanner(
+            credentials!!.username,
+            credentials!!.password
         )
         Log.d(TAG, "Getting local address")
         val networkAddress = getDeviceNetworkAddresses()
@@ -142,19 +138,10 @@ class MainActivity : Activity() {
                 networkAddress.second
             )
         )
-        ipDiscoveryService.scanNetwork(networkAddress.first, networkAddress.second)
+        deviceScanner.scanNetwork(networkAddress.first, networkAddress.second)
         Log.d(TAG, "Running ip discovery service")
-        // assign addresses
-        this.devices.forEach {
-            val ip = ipDiscoveryService.hosts[it.macAddress]
-            if (ip != null) {
-                it.setIpAddress(ip)
-            }
-        }
-        // remove devices without ip address (offline)
-        this.devices = this.devices.filter {
-            it.ipAddr != null
-        }.toMutableList()
+        // assign devices
+        this.devices = deviceScanner.devices
         Log.d(TAG, String.format("Found IP address for %d devices", this.devices.size))
     }
 
@@ -169,7 +156,7 @@ class MainActivity : Activity() {
             val intent = Intent(this, DeviceActivity::class.java)
             intent.putExtra(
                 DeviceActivity.INTENT_NAME, DeviceData(
-                    it.alias, it.id, it.model, it.macAddress, it.ipAddr!!.hostName
+                    it.alias, it.id, it.model, "DUMMY"
                 )
             )
             startActivity(intent)
@@ -179,8 +166,10 @@ class MainActivity : Activity() {
     private fun getDeviceNetworkAddresses(): Pair<String, String> {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
         if (connectivityManager is ConnectivityManager) {
-            val link: LinkProperties =
-                connectivityManager.getLinkProperties(connectivityManager.activeNetwork) as LinkProperties
+            val networks =
+                connectivityManager.allNetworks.map { (connectivityManager.getLinkProperties(it) as LinkProperties) }
+            val link: LinkProperties = networks[networks.size - 1]
+            Log.d(TAG, link.linkAddresses.toString())
             val ipAddress = link.linkAddresses[1].address as Inet4Address
             val netmask = NetworkUtils.cidrToNetmask(link.linkAddresses[1].prefixLength)
             Log.d(
@@ -192,6 +181,7 @@ class MainActivity : Activity() {
                 )
             )
 
+            return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostName, netmask)
         }
 

@@ -137,7 +137,7 @@ class LoginActivity : Activity() {
         val client = TpLinkCloudClient()
         client.login(username, password)
 
-        return Credentials(client.token!!)
+        return Credentials(username, password)
     }
 
     companion object {
