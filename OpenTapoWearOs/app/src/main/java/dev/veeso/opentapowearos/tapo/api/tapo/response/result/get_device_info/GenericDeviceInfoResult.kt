@@ -6,4 +6,9 @@ data class GenericDeviceInfoResult(
     val type: String,
     val model: String,
     val nickname: String,
+    val device_on: Boolean,
+    val brightness: Int? = null,
+    val hue: Int? = null,
+    val saturation: Int? = null,
+    val color_temp: Int? = null
 )

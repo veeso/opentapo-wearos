@@ -15,5 +15,10 @@
     <string name="activity_login_signin_error">Invalid username or password</string>
     <string name="activity_login_input_field_empty">You must provide valid credentials</string>
     <string name="device_activity_power">Power: %s</string>
+    <string name="device_activity_power_on">ON</string>
+    <string name="device_activity_power_off">OFF</string>
+    <string name="device_activity_brightness">Brightness: %d%%</string>
+    <string name="device_activity_color">Color: %s</string>
     <string name="activity_main_not_found">no device found</string>
+    <string name="defines_the_brightness_value_for_seek_bar">defines the brightness value for seek bar</string>
 </resources>

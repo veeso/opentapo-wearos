@@ -1,6 +1,9 @@
 package dev.veeso.opentapowearos.tapo.device
 
-import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.params.Color
+import android.util.Log
+import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetLightBulbDeviceInfoParams
+import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetRgbLightBulbDeviceInfoParams
+import dev.veeso.opentapowearos.view.Color
 
 class L530(
     deviceAlias: String,
@@ -8,20 +11,21 @@ class L530(
     endpoint: String,
 ) : Device(deviceAlias, deviceId, endpoint, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
 
-    suspend fun setBrightness(brightness: UInt) {
-        TODO("impl")
+    suspend fun setBrightness(brightness: Int) {
+        Log.d(TAG, String.format("Setting brightness to %d", brightness))
+        this.client.setDeviceInfo(SetLightBulbDeviceInfoParams(brightness = brightness))
     }
 
     suspend fun setColor(color: Color) {
         val colorCfg = color.getConfig()
+        this.client.setDeviceInfo(SetRgbLightBulbDeviceInfoParams(hue = colorCfg.hue, saturation = colorCfg.saturation, color_temp = colorCfg.colorTemp))
+    }
+
+    suspend fun setHueSaturation(hue: Int, saturation: Int) {
         TODO("impl")
     }
 
-    suspend fun setHueSaturation(hue: UInt, saturation: UInt) {
-        TODO("impl")
-    }
-
-    suspend fun setColorTemperature(colorTemp: UInt) {
+    suspend fun setColorTemperature(colorTemp: Int) {
         TODO("impl")
     }
 

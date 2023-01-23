@@ -83,6 +83,13 @@ class TapoClient {
         )
     }
 
+    suspend fun getDeviceInfo(): GenericDeviceInfoResult {
+        val request = packRequest(GetDeviceInfoParams())
+        val response: TapoResponse<GenericDeviceInfoResult> = passthroughRequest(request)
+        validateResponse(response)
+        return response.result!!
+    }
+
     suspend fun setDeviceInfo(params: SetGenericDeviceInfoParams) {
         Log.d(TAG, String.format("Setting generic device info params: %s", params))
 
@@ -174,7 +181,7 @@ class TapoClient {
     }
 
     private suspend inline fun <reified T, reified U> passthroughRequest(request: TapoRequest<T>): U {
-        val serializer = Json { encodeDefaults = true }
+        val serializer = Json { encodeDefaults = false }
         val payload = serializer.encodeToString(request)
         Log.d(TAG, String.format("Sending out payload to encrypt '%s'", payload))
         val encryptedInnerPayload = this.crypter.encrypt(payload)
@@ -194,7 +201,7 @@ class TapoClient {
     }
 
     private fun <T> packRequest(params: T): TapoRequest<T> {
-        val millis = System.currentTimeMillis().toUInt()
+        val millis = System.currentTimeMillis().toInt()
 
         val method = when (params!!::class.java) {
             GetDeviceInfoParams::class.java -> METHOD_GET_DEVICE_INFO

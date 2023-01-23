@@ -3,6 +3,7 @@ package dev.veeso.opentapowearos.tapo.device
 import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetGenericDeviceInfoParams
+import dev.veeso.opentapowearos.tapo.api.tapo.response.result.get_device_info.GenericDeviceInfoResult
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import java.net.Inet4Address
 
@@ -20,7 +21,7 @@ abstract class Device(
     val type: DeviceType
     val endpoint: String
 
-    private val client: TapoClient
+    protected val client: TapoClient
 
     init {
         this.alias = deviceAlias
@@ -43,6 +44,11 @@ abstract class Device(
     suspend fun off() {
         Log.d(TAG, "Powering device OFF")
         this.client.setDeviceInfo(SetGenericDeviceInfoParams(device_on = false))
+    }
+
+    suspend fun getDeviceInfo(): GenericDeviceInfoResult {
+        Log.d(TAG, "Getting device info")
+        return this.client.getDeviceInfo()
     }
 
     companion object {
