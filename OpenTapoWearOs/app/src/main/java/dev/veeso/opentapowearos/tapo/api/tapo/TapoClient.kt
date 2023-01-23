@@ -1,13 +1,13 @@
 package dev.veeso.opentapowearos.tapo.api.tapo
 
 import android.util.Log
+import dev.veeso.opentapowearos.net.DeviceScanner
+import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.Crypter
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.CryptoUtils
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.KeyPair
-import dev.veeso.opentapowearos.tapo.api.tapo.request.METHOD_HANDSHAKE
-import dev.veeso.opentapowearos.tapo.api.tapo.request.METHOD_LOGIN
-import dev.veeso.opentapowearos.tapo.api.tapo.request.METHOD_SECURE_PASSTHROUGH
-import dev.veeso.opentapowearos.tapo.api.tapo.request.TapoRequest
+import dev.veeso.opentapowearos.tapo.api.tapo.request.*
+import dev.veeso.opentapowearos.tapo.api.tapo.request.params.GetDeviceInfoParams
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.HandshakeParams
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.LoginParams
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.PassthroughParams
@@ -15,6 +15,10 @@ import dev.veeso.opentapowearos.tapo.api.tapo.response.TapoResponse
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.HandshakeResult
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.LoginResult
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.PassthroughResult
+import dev.veeso.opentapowearos.tapo.api.tapo.response.result.get_device_info.GenericDeviceInfoResult
+import dev.veeso.opentapowearos.tapo.device.Device
+import dev.veeso.opentapowearos.tapo.device.DeviceBuilder
+import dev.veeso.opentapowearos.tapo.device.DeviceModel
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -27,9 +31,9 @@ import kotlinx.serialization.decodeFromString
 import java.net.Inet4Address
 import java.util.Base64
 
-class TapoClient(ipAddress: Inet4Address) {
+class TapoClient {
 
-    private val url: String
+    private var url: String
     private val terminalUUID: String = "00-00-00-00-00-00"
     private val client: HttpClient = HttpClient(Android) {
         install(HttpCookies)
@@ -39,14 +43,44 @@ class TapoClient(ipAddress: Inet4Address) {
     private var token: String?
 
     init {
-        this.url = String.format("http://%s/app", ipAddress.hostName)
         this.token = null
+    }
+
+    constructor(ipAddress: Inet4Address) {
+        this.url = String.format("http://%s/app", ipAddress.hostName)
+    }
+
+    constructor(url: String) {
+        this.url = url
     }
 
     suspend fun login(username: String, password: String) {
         Log.d(TAG, String.format("Performing login as %s", username))
         handshake()
         doLogin(username, password)
+    }
+
+    suspend fun queryDevice(): Device {
+        Log.d(TAG, "Getting device type")
+        val request = packRequest(GetDeviceInfoParams())
+
+        val response: TapoResponse<GenericDeviceInfoResult> = passthroughRequest(request)
+        validateResponse(response)
+        val model = DeviceModel.fromName(response.result!!.model)
+        Log.d(
+            DeviceScanner.TAG,
+            String.format(
+                "Found a device of type %s",
+                model
+            )
+        )
+        val alias = String(Base64.getDecoder().decode(response.result.nickname))
+        return DeviceBuilder.buildDevice(
+            alias,
+            response.result.device_id,
+            model,
+            this.url
+        )
     }
 
     private suspend fun handshake() {
@@ -80,6 +114,7 @@ class TapoClient(ipAddress: Inet4Address) {
         validateResponse(response)
         Log.d(TAG, String.format("Login successful; token: %s", response.result!!.token))
         this.token = response.result.token
+        Log.d(TAG, String.format("Session cookie is %s", this.client.cookies(this.url)[0]))
     }
 
     private suspend inline fun <reified T, reified U> post(request: TapoRequest<T>): U {
@@ -132,6 +167,7 @@ class TapoClient(ipAddress: Inet4Address) {
         val millis = System.currentTimeMillis().toUInt()
 
         val method = when (params!!::class.java) {
+            GetDeviceInfoParams::class.java -> METHOD_GET_DEVICE_INFO
             HandshakeParams::class.java -> METHOD_HANDSHAKE
             LoginParams::class.java -> METHOD_LOGIN
             PassthroughParams::class.java -> METHOD_SECURE_PASSTHROUGH

@@ -39,7 +39,6 @@ class MainActivity : Activity() {
         setContentView(binding.root)
 
         readCredentialsFromPrefs()
-
     }
 
     override fun onResume() {
@@ -142,7 +141,7 @@ class MainActivity : Activity() {
         Log.d(TAG, "Running ip discovery service")
         // assign devices
         this.devices = deviceScanner.devices
-        Log.d(TAG, String.format("Found IP address for %d devices", this.devices.size))
+        Log.d(TAG, String.format("Found %d devices", this.devices.size))
     }
 
     private fun populateDeviceList() {
@@ -155,10 +154,11 @@ class MainActivity : Activity() {
             Log.d(TAG, String.format("Clicked on device %s; starting DeviceActivity", it.alias))
             val intent = Intent(this, DeviceActivity::class.java)
             intent.putExtra(
-                DeviceActivity.INTENT_NAME, DeviceData(
-                    it.alias, it.id, it.model, "DUMMY"
+                DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
+                    it.alias, it.id, it.model, it.endpoint
                 )
             )
+            intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
             startActivity(intent)
         }
     }

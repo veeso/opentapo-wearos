@@ -3,12 +3,9 @@ package dev.veeso.opentapowearos.net
 import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.device.Device
-import dev.veeso.opentapowearos.view.Credentials
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.net.Inet4Address
 
 
@@ -26,9 +23,11 @@ class DeviceScanner(username: String, password: String) {
 
     fun scanNetwork(deviceIp: String, deviceMask: String) {
 
-        val networkAddress = NetworkUtils.getNetworkAddress(deviceIp, deviceMask)
+        //val networkAddress = NetworkUtils.getNetworkAddress(deviceIp, deviceMask)
+        val networkAddress = Inet4Address.getByName("192.168.178.34") as Inet4Address
         Log.d(TAG, String.format("Found network address: %s", networkAddress))
-        val broadcastAddress = NetworkUtils.getBroadcastAddress(deviceIp, deviceMask)
+        val broadcastAddress = Inet4Address.getByName("192.168.178.44" )as Inet4Address
+        //val broadcastAddress = NetworkUtils.getBroadcastAddress(deviceIp, deviceMask)
         Log.d(TAG, String.format("Found broadcast address: %s", broadcastAddress))
         Log.d(TAG, String.format("Scanning network %s", networkAddress))
 
@@ -43,6 +42,7 @@ class DeviceScanner(username: String, password: String) {
                 val device = tryToConnectToDevice(workingAddress)
                 if (device != null) {
                     Log.d(TAG, String.format("Found TP link device at %s", workingAddress))
+                    this.devices.add(device)
                 }
             }
             // increment address
@@ -52,18 +52,26 @@ class DeviceScanner(username: String, password: String) {
 
     private fun tryToConnectToDevice(address: Inet4Address): Device? {
         val client = TapoClient(address)
+        var device: Device? = null
         runBlocking {
             withContext(Dispatchers.IO) {
                 try {
                     client.login(username, password)
                     Log.d(TAG, "Successfully signed in to device; getting device info...")
+
                 } catch (e: Exception) {
                     e.printStackTrace()
                     Log.e(TAG, String.format("Login failed: %s", e))
                 }
+                try {
+                    device = client.queryDevice()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.e(TAG, "Query device failed: %s", e)
+                }
             }
         }
-        return null
+        return device
     }
 
     companion object {

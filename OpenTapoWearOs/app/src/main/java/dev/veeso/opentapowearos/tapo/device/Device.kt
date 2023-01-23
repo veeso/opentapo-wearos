@@ -7,25 +7,30 @@ import java.net.Inet4Address
 abstract class Device(
     deviceAlias: String,
     deviceId: String,
-    deviceMac: String,
+    endpoint: String,
     deviceType: DeviceType,
     deviceModel: DeviceModel,
 ) {
 
     val alias: String
     val id: String
-    val macAddress: String
     val model: DeviceModel
     val type: DeviceType
+    val endpoint: String
 
-    private lateinit var client: TapoClient
+    private val client: TapoClient
 
     init {
         this.alias = deviceAlias
         this.id = deviceId
-        this.macAddress = deviceMac
         this.model = deviceModel
         this.type = deviceType
+        this.endpoint = endpoint
+        this.client = TapoClient(endpoint)
+    }
+
+    suspend fun login(username: String, password: String) {
+        this.client.login(username, password)
     }
 
     suspend fun on() {

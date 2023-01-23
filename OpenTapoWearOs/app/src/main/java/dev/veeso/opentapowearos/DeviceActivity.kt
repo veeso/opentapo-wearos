@@ -7,7 +7,11 @@ import android.widget.Switch
 import android.widget.TextView
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.tapo.device.DeviceBuilder
+import dev.veeso.opentapowearos.view.Credentials
 import dev.veeso.opentapowearos.view.DeviceData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 class DeviceActivity : Activity() {
 
@@ -22,10 +26,12 @@ class DeviceActivity : Activity() {
     override fun onResume() {
         super.onResume()
 
-        val deviceData = intent.getParcelableExtra<DeviceData>(INTENT_NAME)
-        if (deviceData != null) {
+        val deviceData = intent.getParcelableExtra<DeviceData>(DEVICE_DATA_INTENT_NAME)
+        val credentials = intent.getParcelableExtra<Credentials>(CREDENTIALS_INTENT_NAME)
+        if (deviceData != null && credentials != null) {
             Log.d(TAG, String.format("Found device %s", deviceData.alias))
             setDeviceFromData(deviceData)
+            login(credentials)
             populateView()
         } else {
             Log.d(TAG, "Intent device data was empty; terminating activity")
@@ -38,10 +44,17 @@ class DeviceActivity : Activity() {
         this.device = DeviceBuilder.buildDevice(
             deviceData.alias,
             deviceData.id,
-            deviceData.macAddress,
             deviceData.model,
-            )
-        // TODO set ip
+            deviceData.endpoint
+        )
+    }
+
+    private fun login(credentials: Credentials) {
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                device.login(credentials.username, credentials.password)
+            }
+        }
     }
 
     private fun populateView() {
@@ -64,7 +77,8 @@ class DeviceActivity : Activity() {
 
     companion object {
         const val TAG = "DeviceActivity"
-        const val INTENT_NAME = "DeviceData"
+        const val DEVICE_DATA_INTENT_NAME = "DeviceData"
+        const val CREDENTIALS_INTENT_NAME = "Credentials"
     }
 
 }

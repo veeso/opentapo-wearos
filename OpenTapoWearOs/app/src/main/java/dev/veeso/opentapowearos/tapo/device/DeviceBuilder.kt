@@ -6,49 +6,49 @@ class DeviceBuilder {
         fun buildDevice(
             alias: String,
             deviceId: String,
-            macAddress: String,
-            model: DeviceModel
+            model: DeviceModel,
+            endpoint: String,
         ): Device {
             return when (model) {
                 DeviceModel.GENERIC -> Generic(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.L510 -> L510(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.L520 -> L520(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.L530 -> L530(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.L610 -> L610(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.L630 -> L630(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.P100 -> P100(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
                 DeviceModel.P110 -> P110(
                     alias,
                     deviceId,
-                    macAddress
+                    endpoint,
                 )
             }
         }

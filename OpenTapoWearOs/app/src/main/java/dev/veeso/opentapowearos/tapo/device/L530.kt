@@ -5,8 +5,8 @@ import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.params.Color
 class L530(
     deviceAlias: String,
     deviceId: String,
-    deviceMac: String,
-) : Device(deviceAlias, deviceId, deviceMac, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
+    endpoint: String,
+) : Device(deviceAlias, deviceId, endpoint, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
 
     suspend fun setBrightness(brightness: UInt) {
         TODO("impl")

@@ -8,21 +8,21 @@ class DeviceData(
     val alias: String,
     val id: String,
     val model: DeviceModel,
-    val macAddress: String,
+    val endpoint: String,
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
         alias = parcel.readString()!!,
         id = parcel.readString()!!,
         model = parcel.readSerializable()!! as DeviceModel,
-        macAddress = parcel.readString()!!
+        endpoint = parcel.readString()!!
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(alias)
         parcel.writeString(id)
         parcel.writeSerializable(model)
-        parcel.writeString(macAddress)
+        parcel.writeString(endpoint)
     }
 
     override fun describeContents(): Int {

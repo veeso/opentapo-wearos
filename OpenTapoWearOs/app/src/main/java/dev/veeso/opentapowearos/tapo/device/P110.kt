@@ -3,8 +3,8 @@ package dev.veeso.opentapowearos.tapo.device
 class P110(
     deviceAlias: String,
     deviceId: String,
-    deviceMac: String,
-) : Device(deviceAlias, deviceId, deviceMac, DeviceType.PLUG, DeviceModel.P110) {
+    endpoint: String,
+) : Device(deviceAlias, deviceId, endpoint, DeviceType.PLUG, DeviceModel.P110) {
 
 
 }

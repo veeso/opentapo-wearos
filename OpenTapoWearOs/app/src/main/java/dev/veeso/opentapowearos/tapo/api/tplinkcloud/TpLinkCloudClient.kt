@@ -1,16 +1,11 @@
 package dev.veeso.opentapowearos.tapo.api.tplinkcloud
 
 import android.util.Log
-import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.ApiRequest
-import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.DISCOVER_METHOD
-import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.EmptyParams
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.LOGIN_METHOD
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.request.params.LoginParams
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.ApiResponse
-import dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.result.GetDeviceListResult
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.response.result.LoginResult
-import dev.veeso.opentapowearos.tapo.device.*
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -19,31 +14,14 @@ import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
-import java.util.Base64
 import java.util.UUID
 
 class TpLinkCloudClient {
 
-    private var url: String
+    private val url: String = BASE_URL
     private val terminalUUID: String = UUID.randomUUID().toString()
-    private val client: HttpClient
+    private val client: HttpClient = HttpClient(Android)
     var token: String? = null
-
-    init {
-        this.url = BASE_URL
-        this.token = null
-        this.client = HttpClient(Android)
-    }
-
-    constructor() {
-        this.url = BASE_URL
-        this.token = null
-    }
-
-    constructor(apiUrl: String, token: String) {
-        this.url = apiUrl
-        this.token = token
-    }
 
     suspend fun login(email: String, password: String) {
         val params = ApiRequest(
@@ -61,38 +39,6 @@ class TpLinkCloudClient {
         } else {
             Log.d(TAG, String.format("Login failed: %d", data.error_code))
             throw Exception(String.format("Login failed: %d", data.error_code))
-        }
-    }
-
-    suspend fun discoverDevices(): List<Device> {
-        val data: ApiResponse<GetDeviceListResult> =
-            post(ApiRequest(DISCOVER_METHOD, EmptyParams()))
-
-        if (data.error_code == 0 && data.result != null) {
-            Log.d(
-                TAG,
-                String.format(
-                    "Discovery was successful; found %d devices",
-                    data.result.deviceList.size
-                )
-            )
-
-            return data.result.deviceList.map {
-                val model = DeviceModel.fromName(it.deviceModel)
-                val alias = String(
-                    Base64.getDecoder().decode(it.alias)
-                )
-                val macAddress = NetworkUtils.convertMacFromTapo(it.deviceMac)
-                DeviceBuilder.buildDevice(
-                    alias,
-                    it.deviceId,
-                    macAddress,
-                    model
-                )
-            }
-
-        } else {
-            throw Exception(String.format("Discover devices failed: %d", data.error_code))
         }
     }
 
