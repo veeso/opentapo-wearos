@@ -67,12 +67,25 @@ class DeviceActivity : Activity() {
         val powerState: Switch = findViewById(R.id.device_activity_power)
         powerState.setOnCheckedChangeListener { _, isChecked ->
             Log.d(TAG, String.format("Changing power state for %s to %s", device.alias, isChecked))
+            setPowerState(isChecked)
         }
     }
 
     private suspend fun fetchDeviceState() {
         Log.d(TAG, "Fetching device state...")
         TODO()
+    }
+
+    private fun setPowerState(state: Boolean) {
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                if (state) {
+                    device.on()
+                } else {
+                    device.off()
+                }
+            }
+        }
     }
 
     companion object {

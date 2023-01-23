@@ -7,14 +7,12 @@ import dev.veeso.opentapowearos.tapo.api.tapo.crypto.Crypter
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.CryptoUtils
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.KeyPair
 import dev.veeso.opentapowearos.tapo.api.tapo.request.*
-import dev.veeso.opentapowearos.tapo.api.tapo.request.params.GetDeviceInfoParams
-import dev.veeso.opentapowearos.tapo.api.tapo.request.params.HandshakeParams
-import dev.veeso.opentapowearos.tapo.api.tapo.request.params.LoginParams
-import dev.veeso.opentapowearos.tapo.api.tapo.request.params.PassthroughParams
+import dev.veeso.opentapowearos.tapo.api.tapo.request.params.*
 import dev.veeso.opentapowearos.tapo.api.tapo.response.TapoResponse
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.HandshakeResult
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.LoginResult
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.PassthroughResult
+import dev.veeso.opentapowearos.tapo.api.tapo.response.result.SetDeviceInfoResult
 import dev.veeso.opentapowearos.tapo.api.tapo.response.result.get_device_info.GenericDeviceInfoResult
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.tapo.device.DeviceBuilder
@@ -81,6 +79,33 @@ class TapoClient {
             model,
             this.url
         )
+    }
+
+    suspend fun setDeviceInfo(params: SetGenericDeviceInfoParams) {
+        Log.d(TAG, String.format("Setting generic device info params: %s", params))
+
+        val request = packRequest(params)
+        val response: TapoResponse<SetDeviceInfoResult> = passthroughRequest(request)
+        validateResponse(response)
+        Log.d(TAG, "Device info SET")
+    }
+
+    suspend fun setDeviceInfo(params: SetLightBulbDeviceInfoParams) {
+        Log.d(TAG, String.format("Setting light bulb device info params: %s", params))
+
+        val request = packRequest(params)
+        val response: TapoResponse<SetDeviceInfoResult> = passthroughRequest(request)
+        validateResponse(response)
+        Log.d(TAG, "Device info SET")
+    }
+
+    suspend fun setDeviceInfo(params: SetRgbLightBulbDeviceInfoParams) {
+        Log.d(TAG, String.format("Setting RGB device info params: %s", params))
+
+        val request = packRequest(params)
+        val response: TapoResponse<SetDeviceInfoResult> = passthroughRequest(request)
+        validateResponse(response)
+        Log.d(TAG, "Device info SET")
     }
 
     private suspend fun handshake() {
@@ -171,6 +196,9 @@ class TapoClient {
             HandshakeParams::class.java -> METHOD_HANDSHAKE
             LoginParams::class.java -> METHOD_LOGIN
             PassthroughParams::class.java -> METHOD_SECURE_PASSTHROUGH
+            SetGenericDeviceInfoParams::class.java -> METHOD_SET_DEVICE_INFO
+            SetLightBulbDeviceInfoParams::class.java -> METHOD_SET_DEVICE_INFO
+            SetRgbLightBulbDeviceInfoParams::class.java -> METHOD_SET_DEVICE_INFO
             else ->
                 throw Exception("Unknown method")
         }
@@ -181,10 +209,6 @@ class TapoClient {
         if (response.error_code != 0) {
             Log.e(TAG, String.format("Expected error code 0; got %d", response.error_code))
             throw Exception(String.format("Expected error code 0; got %d", response.error_code))
-        }
-        if (response.result == null) {
-            Log.e(TAG, "Expected result not to be null")
-            throw Exception("Expected result not to be null")
         }
     }
 

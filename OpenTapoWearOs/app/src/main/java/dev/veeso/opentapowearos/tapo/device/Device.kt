@@ -1,6 +1,8 @@
 package dev.veeso.opentapowearos.tapo.device
 
+import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
+import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetGenericDeviceInfoParams
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import java.net.Inet4Address
 
@@ -34,19 +36,13 @@ abstract class Device(
     }
 
     suspend fun on() {
-        TODO("impl")
+        Log.d(TAG, "Powering device ON")
+        this.client.setDeviceInfo(SetGenericDeviceInfoParams(device_on = true))
     }
 
     suspend fun off() {
-        TODO("impl")
-    }
-
-    suspend fun getDeviceUsage() {
-        TODO("impl")
-    }
-
-    protected suspend fun setDeviceInfo() {
-        TODO("impl")
+        Log.d(TAG, "Powering device OFF")
+        this.client.setDeviceInfo(SetGenericDeviceInfoParams(device_on = false))
     }
 
     companion object {
