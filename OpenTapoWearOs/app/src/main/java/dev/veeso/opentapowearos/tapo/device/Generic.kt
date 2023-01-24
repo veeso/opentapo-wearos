@@ -4,5 +4,14 @@ class Generic(
     deviceAlias: String,
     deviceId: String,
     endpoint: String,
-    ipAddress: String
-) : Device(deviceAlias, deviceId, endpoint, ipAddress, DeviceType.UNKNOWN, DeviceModel.GENERIC)
+    ipAddress: String,
+    deviceStatus: DeviceStatus,
+) : Device(
+    deviceAlias,
+    deviceId,
+    endpoint,
+    ipAddress,
+    DeviceType.UNKNOWN,
+    DeviceModel.GENERIC,
+    deviceStatus
+)

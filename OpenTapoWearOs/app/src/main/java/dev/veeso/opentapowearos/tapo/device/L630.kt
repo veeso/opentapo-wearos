@@ -10,13 +10,15 @@ class L630(
     deviceId: String,
     endpoint: String,
     ipAddress: String,
+    deviceStatus: DeviceStatus,
 ) : Device(
     deviceAlias,
     deviceId,
     endpoint,
     ipAddress,
     DeviceType.RGB_LIGHT_BULB,
-    DeviceModel.L630
+    DeviceModel.L630,
+    deviceStatus
 ) {
 
     suspend fun setBrightness(brightness: Int) {

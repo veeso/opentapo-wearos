@@ -8,7 +8,16 @@ class L610(
     deviceId: String,
     endpoint: String,
     ipAddress: String,
-) : Device(deviceAlias, deviceId, endpoint, ipAddress, DeviceType.LIGHT_BULB, DeviceModel.L610) {
+    deviceStatus: DeviceStatus,
+) : Device(
+    deviceAlias,
+    deviceId,
+    endpoint,
+    ipAddress,
+    DeviceType.LIGHT_BULB,
+    DeviceModel.L610,
+    deviceStatus
+) {
 
     suspend fun setBrightness(brightness: Int) {
         Log.d(TAG, String.format("Setting brightness to %d", brightness))

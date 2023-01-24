@@ -5,4 +5,13 @@ class P100(
     deviceId: String,
     endpoint: String,
     ipAddress: String,
-) : Device(deviceAlias, deviceId, endpoint, ipAddress, DeviceType.PLUG, DeviceModel.P100)
+    deviceStatus: DeviceStatus,
+) : Device(
+    deviceAlias,
+    deviceId,
+    endpoint,
+    ipAddress,
+    DeviceType.PLUG,
+    DeviceModel.P100,
+    deviceStatus
+)

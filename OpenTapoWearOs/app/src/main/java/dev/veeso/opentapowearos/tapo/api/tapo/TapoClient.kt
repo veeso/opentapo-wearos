@@ -16,6 +16,7 @@ import dev.veeso.opentapowearos.tapo.api.tapo.response.result.get_device_info.Ge
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.tapo.device.DeviceBuilder
 import dev.veeso.opentapowearos.tapo.device.DeviceModel
+import dev.veeso.opentapowearos.tapo.device.DeviceStatus
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -65,7 +66,8 @@ class TapoClient {
 
         val response: TapoResponse<GenericDeviceInfoResult> = passthroughRequest(request)
         validateResponse(response)
-        val model = DeviceModel.fromName(response.result!!.model)
+        val deviceInfo = response.result!!
+        val model = DeviceModel.fromName(deviceInfo.model)
         Log.d(
             DeviceScanner.TAG,
             String.format(
@@ -73,13 +75,20 @@ class TapoClient {
                 model
             )
         )
-        val alias = String(Base64.getDecoder().decode(response.result.nickname))
+        val alias = String(Base64.getDecoder().decode(deviceInfo.nickname))
         return DeviceBuilder.buildDevice(
             alias,
-            response.result.device_id,
+            deviceInfo.device_id,
             model,
             this.url,
-            response.result.ip
+            deviceInfo.ip,
+            DeviceStatus(
+                deviceOn = deviceInfo.device_on,
+                brightness = deviceInfo.brightness,
+                hue = deviceInfo.hue,
+                saturation = deviceInfo.saturation,
+                colorTemperature = deviceInfo.color_temp
+            )
         )
     }
 

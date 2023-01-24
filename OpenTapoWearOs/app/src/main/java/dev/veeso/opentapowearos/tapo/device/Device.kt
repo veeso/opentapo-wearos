@@ -3,9 +3,6 @@ package dev.veeso.opentapowearos.tapo.device
 import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetGenericDeviceInfoParams
-import dev.veeso.opentapowearos.tapo.api.tapo.response.result.get_device_info.GenericDeviceInfoResult
-import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
-import java.net.Inet4Address
 
 abstract class Device(
     deviceAlias: String,
@@ -14,6 +11,7 @@ abstract class Device(
     ipAddress: String,
     deviceType: DeviceType,
     deviceModel: DeviceModel,
+    deviceStatus: DeviceStatus
 ) {
 
     val alias: String
@@ -22,6 +20,7 @@ abstract class Device(
     val type: DeviceType
     val endpoint: String
     val ipAddress: String
+    var status: DeviceStatus
 
     protected val client: TapoClient
 
@@ -33,6 +32,7 @@ abstract class Device(
         this.endpoint = endpoint
         this.client = TapoClient(endpoint)
         this.ipAddress = ipAddress
+        this.status = deviceStatus
     }
 
     suspend fun login(username: String, password: String) {
@@ -49,9 +49,17 @@ abstract class Device(
         this.client.setDeviceInfo(SetGenericDeviceInfoParams(device_on = false))
     }
 
-    suspend fun getDeviceInfo(): GenericDeviceInfoResult {
+    suspend fun getDeviceStatus(): DeviceStatus {
         Log.d(TAG, "Getting device info")
-        return this.client.getDeviceInfo()
+        val deviceInfo = this.client.getDeviceInfo()
+        this.status = DeviceStatus(
+            deviceOn = deviceInfo.device_on,
+            brightness = deviceInfo.brightness,
+            hue = deviceInfo.hue,
+            saturation = deviceInfo.saturation,
+            colorTemperature = deviceInfo.color_temp
+        )
+        return this.status
     }
 
     companion object {

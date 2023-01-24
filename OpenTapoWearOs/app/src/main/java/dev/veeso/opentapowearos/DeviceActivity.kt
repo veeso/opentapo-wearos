@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
-import dev.veeso.opentapowearos.tapo.api.tapo.response.result.get_device_info.GenericDeviceInfoResult
 import dev.veeso.opentapowearos.tapo.device.*
 import dev.veeso.opentapowearos.view.Color
 import dev.veeso.opentapowearos.view.Color.Companion.COLOR_LIST
@@ -49,7 +48,8 @@ class DeviceActivity : Activity() {
             deviceData.id,
             deviceData.model,
             deviceData.endpoint,
-            deviceData.ipAddress
+            deviceData.ipAddress,
+            deviceData.status
         )
     }
 
@@ -69,6 +69,7 @@ class DeviceActivity : Activity() {
 
         // switch ON/OFF
         val powerState: Switch = findViewById(R.id.device_activity_power)
+        setPowerView(device.status.deviceOn)
         powerState.setOnCheckedChangeListener { _, isChecked ->
             Log.d(TAG, String.format("Changing power state for %s to %s", device.alias, isChecked))
             setPowerView(isChecked)
@@ -78,6 +79,7 @@ class DeviceActivity : Activity() {
         val brightnessSeekBar: SeekBar = findViewById(R.id.device_activity_brightness)
         if (device.type == DeviceType.LIGHT_BULB || device.type == DeviceType.RGB_LIGHT_BULB) {
             brightnessSeekBar.visibility = View.VISIBLE
+            setBrightnessView(device.status.brightness ?: 1)
             brightnessSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
@@ -123,18 +125,15 @@ class DeviceActivity : Activity() {
         } else {
             colorList.visibility = View.INVISIBLE
         }
-
-        // fetch state
-        fetchDeviceState()
     }
 
     private fun fetchDeviceState() {
         Log.d(TAG, "Fetching device state...")
         runBlocking {
             withContext(Dispatchers.IO) {
-                val deviceInfo = device.getDeviceInfo()
+                val deviceInfo = device.getDeviceStatus()
                 runOnUiThread {
-                    setPowerView(deviceInfo.device_on)
+                    setPowerView(deviceInfo.deviceOn)
                     if (deviceInfo.brightness != null) {
                         setBrightnessView(deviceInfo.brightness)
                     }

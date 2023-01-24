@@ -157,7 +157,7 @@ class MainActivity : Activity() {
                 val intent = Intent(this, DeviceActivity::class.java)
                 intent.putExtra(
                     DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
-                        it.alias, it.id, it.model, it.endpoint, it.ipAddress
+                        it.alias, it.id, it.model, it.endpoint, it.ipAddress, it.status
                     )
                 )
                 intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
@@ -215,7 +215,7 @@ class MainActivity : Activity() {
                     netmask
                 )
             )
-            return Pair("192.168.178.23", "255.255.255.0")
+            // return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostName, netmask)
         }
 
