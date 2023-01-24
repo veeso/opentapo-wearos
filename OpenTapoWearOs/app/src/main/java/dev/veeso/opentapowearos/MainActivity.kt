@@ -23,9 +23,7 @@ import dev.veeso.opentapowearos.view.Credentials
 import dev.veeso.opentapowearos.view.DeviceCache
 import dev.veeso.opentapowearos.view.DeviceData
 import dev.veeso.opentapowearos.view.DeviceListAdapter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.net.Inet4Address
 
 class MainActivity : Activity() {
@@ -68,7 +66,7 @@ class MainActivity : Activity() {
         }
 
         // add reload listener
-        val reloadIcon: ImageView = findViewById(R.id.activity_main_header_reload)
+        val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
         reloadIcon.setOnClickListener {
             onReloadDeviceList()
         }
@@ -77,7 +75,14 @@ class MainActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        Log.d(TAG, String.format("OnActivityResult; credentials is %s and result code is %d", credentials, resultCode))
+        Log.d(
+            TAG,
+            String.format(
+                "OnActivityResult; credentials is %s and result code is %d",
+                credentials,
+                resultCode
+            )
+        )
         if (this.credentials == null && resultCode == RESULT_OK && data != null) {
             val credentials = data.getParcelableExtra<Credentials>(LoginActivity.INTENT_OUTPUT)
             Log.d(TAG, String.format("Credentials from activity: %s", credentials))
@@ -88,10 +93,11 @@ class MainActivity : Activity() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun onReloadDeviceList() {
         deleteCachedDeviceAddressList()
         setMessageBox(visible = true, searching = true)
-        runBlocking {
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 discoverDevices()
             }
@@ -120,24 +126,38 @@ class MainActivity : Activity() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun reloadDeviceState() {
         Log.d(TAG, "Reloading device state...")
         this.devices.forEach {
-            runBlocking {
+            GlobalScope.launch {
                 withContext(Dispatchers.IO) {
                     if (!it.authenticated) {
                         Log.d(
                             TAG,
                             String.format("Device %s is not authenticated yet; signin in", it.alias)
                         )
-                        it.login(credentials!!.username, credentials!!.password)
+                        try {
+                            it.login(credentials!!.username, credentials!!.password)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Log.e(TAG, String.format("Login failed on %s: %s", it.alias, e))
+                        }
                     }
-                    Log.d(TAG, String.format("Getting device state for %s", it.alias))
-                    it.getDeviceStatus()
+                    try {
+                        Log.d(TAG, String.format("Getting device state for %s", it.alias))
+                        it.getDeviceStatus()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Log.e(
+                            TAG,
+                            String.format("Failed to get device state for %s: %s", it.alias, e)
+                        )
+                    }
                 }
+                populateDeviceList()
             }
         }
-        populateDeviceList()
     }
 
     private suspend fun login(username: String, password: String) {
@@ -148,18 +168,17 @@ class MainActivity : Activity() {
         discoverDevices()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun discoverDevices() {
-        this.devices.clear()
-        runBlocking {
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
+                devices.clear()
                 discoverDevicesOnLocalNetwork()
+                populateDeviceList()
+                // reload device state
+                reloadDeviceState()
             }
         }
-        runOnUiThread {
-            populateDeviceList()
-        }
-        // reload device state
-        reloadDeviceState()
     }
 
     private fun discoverDevicesOnLocalNetwork() {
@@ -191,25 +210,30 @@ class MainActivity : Activity() {
     }
 
     private fun populateDeviceList() {
-        if (devices.isEmpty()) {
-            setMessageBox(visible = true, searching = false)
-        } else {
-            setMessageBox(visible = false, searching = false)
-            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
-            val devicesAdapter = DeviceListAdapter(devices)
-            deviceList.adapter = devicesAdapter
-            deviceList.layoutManager = LinearLayoutManager(this)
+        runOnUiThread {
+            if (devices.isEmpty()) {
+                setMessageBox(visible = true, searching = false)
+            } else {
+                setMessageBox(visible = false, searching = false)
+                val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+                val devicesAdapter = DeviceListAdapter(devices)
+                deviceList.adapter = devicesAdapter
+                deviceList.layoutManager = LinearLayoutManager(this)
 
-            devicesAdapter.onItemClick = {
-                Log.d(TAG, String.format("Clicked on device %s; starting DeviceActivity", it.alias))
-                val intent = Intent(this, DeviceActivity::class.java)
-                intent.putExtra(
-                    DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
-                        it.alias, it.id, it.model, it.endpoint, it.ipAddress, it.status
+                devicesAdapter.onItemClick = {
+                    Log.d(
+                        TAG,
+                        String.format("Clicked on device %s; starting DeviceActivity", it.alias)
                     )
-                )
-                intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
-                startActivity(intent)
+                    val intent = Intent(this, DeviceActivity::class.java)
+                    intent.putExtra(
+                        DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
+                            it.alias, it.id, it.model, it.endpoint, it.ipAddress, it.status
+                        )
+                    )
+                    intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
+                    startActivity(intent)
+                }
             }
         }
     }
@@ -218,9 +242,11 @@ class MainActivity : Activity() {
         runOnUiThread {
             val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
             val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
             if (visible) {
                 deviceList.visibility = View.INVISIBLE
                 messageBox.visibility = View.VISIBLE
+                reloadIcon.visibility = View.INVISIBLE
                 if (searching) {
                     val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
                     progress.visibility = View.VISIBLE
@@ -237,6 +263,7 @@ class MainActivity : Activity() {
             } else {
                 messageBox.visibility = View.INVISIBLE
                 deviceList.visibility = View.VISIBLE
+                reloadIcon.visibility = View.VISIBLE
             }
         }
     }
@@ -267,7 +294,7 @@ class MainActivity : Activity() {
                     netmask
                 )
             )
-            // return Pair("192.168.178.23", "255.255.255.0")
+            return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostName, netmask)
         }
 

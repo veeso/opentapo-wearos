@@ -83,10 +83,11 @@
         android:visibility="visible">
 
         <ImageView
-            android:id="@+id/activity_main_header_reload"
+            android:id="@+id/activity_main_reload"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:visibility="invisible"
             android:contentDescription="@string/reload_device_list"
             android:src="@android:drawable/ic_popup_sync" />
 
