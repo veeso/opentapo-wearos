@@ -48,7 +48,8 @@ class DeviceActivity : Activity() {
             deviceData.alias,
             deviceData.id,
             deviceData.model,
-            deviceData.endpoint
+            deviceData.endpoint,
+            deviceData.ipAddress
         )
     }
 

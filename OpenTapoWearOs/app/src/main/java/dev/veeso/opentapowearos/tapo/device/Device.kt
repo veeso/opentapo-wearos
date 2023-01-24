@@ -11,6 +11,7 @@ abstract class Device(
     deviceAlias: String,
     deviceId: String,
     endpoint: String,
+    ipAddress: String,
     deviceType: DeviceType,
     deviceModel: DeviceModel,
 ) {
@@ -20,6 +21,7 @@ abstract class Device(
     val model: DeviceModel
     val type: DeviceType
     val endpoint: String
+    val ipAddress: String
 
     protected val client: TapoClient
 
@@ -30,6 +32,7 @@ abstract class Device(
         this.type = deviceType
         this.endpoint = endpoint
         this.client = TapoClient(endpoint)
+        this.ipAddress = ipAddress
     }
 
     suspend fun login(username: String, password: String) {

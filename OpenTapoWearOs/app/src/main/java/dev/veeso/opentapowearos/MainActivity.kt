@@ -162,7 +162,7 @@ class MainActivity : Activity() {
                 val intent = Intent(this, DeviceActivity::class.java)
                 intent.putExtra(
                     DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
-                        it.alias, it.id, it.model, it.endpoint
+                        it.alias, it.id, it.model, it.endpoint, it.ipAddress
                     )
                 )
                 intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)

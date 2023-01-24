@@ -9,7 +9,15 @@ class L530(
     deviceAlias: String,
     deviceId: String,
     endpoint: String,
-) : Device(deviceAlias, deviceId, endpoint, DeviceType.RGB_LIGHT_BULB, DeviceModel.L530) {
+    ipAddress: String,
+) : Device(
+    deviceAlias,
+    deviceId,
+    endpoint,
+    ipAddress,
+    DeviceType.RGB_LIGHT_BULB,
+    DeviceModel.L530
+) {
 
     suspend fun setBrightness(brightness: Int) {
         Log.d(TAG, String.format("Setting brightness to %d", brightness))
@@ -18,7 +26,13 @@ class L530(
 
     suspend fun setColor(color: Color) {
         val colorCfg = color.getConfig()
-        this.client.setDeviceInfo(SetRgbLightBulbDeviceInfoParams(hue = colorCfg.hue, saturation = colorCfg.saturation, color_temp = colorCfg.colorTemp))
+        this.client.setDeviceInfo(
+            SetRgbLightBulbDeviceInfoParams(
+                hue = colorCfg.hue,
+                saturation = colorCfg.saturation,
+                color_temp = colorCfg.colorTemp
+            )
+        )
     }
 
     suspend fun setHueSaturation(hue: Int, saturation: Int) {

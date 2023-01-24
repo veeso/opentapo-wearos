@@ -79,7 +79,8 @@ class TapoClient {
             alias,
             response.result.device_id,
             model,
-            this.url
+            this.url,
+            response.result.ip
         )
     }
 

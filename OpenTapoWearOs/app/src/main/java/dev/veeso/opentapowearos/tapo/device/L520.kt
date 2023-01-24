@@ -7,7 +7,8 @@ class L520(
     deviceAlias: String,
     deviceId: String,
     endpoint: String,
-) : Device(deviceAlias, deviceId, endpoint, DeviceType.LIGHT_BULB, DeviceModel.L520) {
+    ipAddress: String,
+) : Device(deviceAlias, deviceId, endpoint, ipAddress, DeviceType.LIGHT_BULB, DeviceModel.L520) {
 
     suspend fun setBrightness(brightness: Int) {
         Log.d(TAG, String.format("Setting brightness to %d", brightness))

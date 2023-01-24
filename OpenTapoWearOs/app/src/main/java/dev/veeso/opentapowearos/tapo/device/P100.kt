@@ -4,4 +4,5 @@ class P100(
     deviceAlias: String,
     deviceId: String,
     endpoint: String,
-) : Device(deviceAlias, deviceId, endpoint, DeviceType.PLUG, DeviceModel.P100)
+    ipAddress: String,
+) : Device(deviceAlias, deviceId, endpoint, ipAddress, DeviceType.PLUG, DeviceModel.P100)
