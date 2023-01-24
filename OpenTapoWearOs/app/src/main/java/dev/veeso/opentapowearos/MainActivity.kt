@@ -3,8 +3,7 @@ package dev.veeso.opentapowearos
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.LinkProperties
+import android.net.*
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -170,15 +169,31 @@ class MainActivity : Activity() {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun discoverDevices() {
-        GlobalScope.launch {
-            withContext(Dispatchers.IO) {
-                devices.clear()
-                discoverDevicesOnLocalNetwork()
-                populateDeviceList()
-                // reload device state
-                reloadDeviceState()
+
+        val connectivityManager: ConnectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                Log.d(TAG, "Wifi available")
+                // The Wi-Fi network has been acquired, bind it to use this network by default
+                connectivityManager.bindProcessToNetwork(network)
+                GlobalScope.launch {
+                    withContext(Dispatchers.IO) {
+                        devices.clear()
+                        discoverDevicesOnLocalNetwork()
+                        populateDeviceList()
+                        // reload device state
+                        reloadDeviceState()
+                    }
+                }
             }
+
         }
+        connectivityManager.requestNetwork(
+            NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build(),
+            callback
+        )
     }
 
     private fun discoverDevicesOnLocalNetwork() {
