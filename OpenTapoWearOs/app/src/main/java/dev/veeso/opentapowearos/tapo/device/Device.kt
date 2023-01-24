@@ -22,6 +22,8 @@ abstract class Device(
     val ipAddress: String
     var status: DeviceStatus
 
+    val authenticated: Boolean get() = client.authenticated
+
     protected val client: TapoClient
 
     init {

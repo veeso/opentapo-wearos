@@ -57,6 +57,7 @@ class DeviceActivity : Activity() {
         runBlocking {
             withContext(Dispatchers.IO) {
                 device.login(credentials.username, credentials.password)
+                fetchDeviceState()
             }
         }
     }
@@ -140,7 +141,6 @@ class DeviceActivity : Activity() {
                 }
             }
         }
-
     }
 
     private fun setPowerView(state: Boolean) {

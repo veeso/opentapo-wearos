@@ -51,44 +51,44 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-
         Log.d(TAG, "onResume")
 
-        // try to read from prefs
+        // get credentials
         if (this.credentials == null) {
-            readCredentialsFromPrefs()
-        }
-
-        // if still NULL; try to read from intent
-        if (this.credentials == null) {
-            val credentials = intent.getParcelableExtra<Credentials>(LoginActivity.INTENT_OUTPUT)
-            if (credentials != null) {
-                Log.d(TAG, "Got credentials from login activity")
-                this.credentials = credentials
-                // discover devices
-                try {
-                    discoverDevices()
-                } catch (e: Exception) {
-                    Log.e(TAG, String.format("Failed to discover devices: %s", e))
-                    setMessageBox(visible = true, searching = false)
-                }
-            } else {
-                Log.d(
-                    TAG,
-                    "Credentials not in intent and not in preferences. Starting LoginActivity"
-                )
-                startActivity(Intent(this, LoginActivity::class.java))
+            Log.d(TAG, "Credentials are null; handling null credentials")
+            onNullCredentials()
+        } else {
+            if (devices.isEmpty()) {
+                Log.d(TAG, "Device list is empty; discover devices")
+                discoverDevices()
             }
+            // reload device state
+            Log.d(TAG, "Credentials are set; reloading device state...")
+            reloadDeviceState()
         }
 
         // add reload listener
         val reloadIcon: ImageView = findViewById(R.id.activity_main_header_reload)
         reloadIcon.setOnClickListener {
-            onReloadDeviceList(it)
+            onReloadDeviceList()
         }
     }
 
-    private fun onReloadDeviceList(view: View) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Log.d(TAG, String.format("OnActivityResult; credentials is %s and result code is %d", credentials, resultCode))
+        if (this.credentials == null && resultCode == RESULT_OK && data != null) {
+            val credentials = data.getParcelableExtra<Credentials>(LoginActivity.INTENT_OUTPUT)
+            Log.d(TAG, String.format("Credentials from activity: %s", credentials))
+            if (credentials != null) {
+                Log.d(TAG, "Got credentials from login activity")
+                this.credentials = credentials
+            }
+        }
+    }
+
+    private fun onReloadDeviceList() {
         deleteCachedDeviceAddressList()
         setMessageBox(visible = true, searching = true)
         runBlocking {
@@ -96,6 +96,48 @@ class MainActivity : Activity() {
                 discoverDevices()
             }
         }
+    }
+
+    private fun onNullCredentials() {
+        // try to read from prefs
+        readCredentialsFromPrefs()
+
+        // if still NULL; try to read from intent
+        if (this.credentials != null) {
+            try {
+                discoverDevices()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e(TAG, String.format("Failed to discover devices: %s", e))
+                setMessageBox(visible = true, searching = false)
+            }
+        } else {
+            Log.d(
+                TAG,
+                "Credentials not in intent and not in preferences. Starting LoginActivity"
+            )
+            startActivityForResult(Intent(this, LoginActivity::class.java), 1)
+        }
+    }
+
+    private fun reloadDeviceState() {
+        Log.d(TAG, "Reloading device state...")
+        this.devices.forEach {
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    if (!it.authenticated) {
+                        Log.d(
+                            TAG,
+                            String.format("Device %s is not authenticated yet; signin in", it.alias)
+                        )
+                        it.login(credentials!!.username, credentials!!.password)
+                    }
+                    Log.d(TAG, String.format("Getting device state for %s", it.alias))
+                    it.getDeviceStatus()
+                }
+            }
+        }
+        populateDeviceList()
     }
 
     private suspend fun login(username: String, password: String) {
@@ -108,10 +150,16 @@ class MainActivity : Activity() {
 
     private fun discoverDevices() {
         this.devices.clear()
-        discoverDevicesOnLocalNetwork()
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                discoverDevicesOnLocalNetwork()
+            }
+        }
         runOnUiThread {
             populateDeviceList()
         }
+        // reload device state
+        reloadDeviceState()
     }
 
     private fun discoverDevicesOnLocalNetwork() {
@@ -167,25 +215,29 @@ class MainActivity : Activity() {
     }
 
     private fun setMessageBox(visible: Boolean, searching: Boolean) {
-        if (visible) {
+        runOnUiThread {
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
             val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
-            messageBox.visibility = View.VISIBLE
-            if (searching) {
-                val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-                progress.visibility = View.VISIBLE
-                val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-                alertIcon.visibility = View.INVISIBLE
+            if (visible) {
+                deviceList.visibility = View.INVISIBLE
+                messageBox.visibility = View.VISIBLE
+                if (searching) {
+                    val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+                    progress.visibility = View.VISIBLE
+                    val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+                    alertIcon.visibility = View.INVISIBLE
+                } else {
+                    val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+                    alertIcon.visibility = View.VISIBLE
+                    val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+                    progress.visibility = View.INVISIBLE
+                    val message: TextView = findViewById(R.id.activity_main_message)
+                    message.text = resources.getString(R.string.main_activity_not_found)
+                }
             } else {
-                val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-                alertIcon.visibility = View.VISIBLE
-                val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-                progress.visibility = View.INVISIBLE
-                val message: TextView = findViewById(R.id.activity_main_message)
-                message.text = resources.getString(R.string.main_activity_not_found)
+                messageBox.visibility = View.INVISIBLE
+                deviceList.visibility = View.VISIBLE
             }
-        } else {
-            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
-            messageBox.visibility = View.INVISIBLE
         }
     }
 

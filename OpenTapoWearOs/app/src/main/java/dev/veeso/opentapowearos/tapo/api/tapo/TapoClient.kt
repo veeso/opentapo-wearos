@@ -42,6 +42,8 @@ class TapoClient {
 
     private var token: String?
 
+    val authenticated: Boolean get() = token != null
+
     init {
         this.token = null
     }

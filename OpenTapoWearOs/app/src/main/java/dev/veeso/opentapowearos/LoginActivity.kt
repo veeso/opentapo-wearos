@@ -112,6 +112,7 @@ class LoginActivity : Activity() {
     }
 
     private fun doSignIn(username: String, password: String, savePassword: Boolean) {
+        val intent = Intent()
         runBlocking {
             withContext(Dispatchers.IO) {
                 try {
@@ -119,10 +120,7 @@ class LoginActivity : Activity() {
                     Log.d(TAG, "Login successful. Saving credentials to shared preferences")
                     saveCredentialsToPrefs(username, password, savePassword)
                     // return to main activity
-                    val intent = Intent()
                     intent.putExtra(INTENT_OUTPUT, credentials)
-                    setResult(RESULT_OK, intent)
-                    finish()
                 } catch (e: Exception) {
                     Log.d(TAG, String.format("Login failed: %s", e))
                     runOnUiThread {
@@ -131,6 +129,8 @@ class LoginActivity : Activity() {
                 }
             }
         }
+        setResult(RESULT_OK, intent)
+        finish()
     }
 
     private suspend fun login(username: String, password: String): Credentials {
