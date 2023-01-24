@@ -67,7 +67,7 @@
             android:text=""
             android:textColor="#F44336"
             android:textSize="12sp"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/signin_button"

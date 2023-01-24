@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/activity_main_not_found"
             android:src="@android:drawable/ic_dialog_alert"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/activity_main_message"
@@ -87,7 +87,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:contentDescription="@string/reload_device_list"
             android:src="@android:drawable/ic_popup_sync" />
 

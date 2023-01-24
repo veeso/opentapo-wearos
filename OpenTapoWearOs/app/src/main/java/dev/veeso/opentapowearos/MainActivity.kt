@@ -244,24 +244,24 @@ class MainActivity : Activity() {
             val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
             val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
             if (visible) {
-                deviceList.visibility = View.INVISIBLE
+                deviceList.visibility = View.GONE
                 messageBox.visibility = View.VISIBLE
-                reloadIcon.visibility = View.INVISIBLE
+                reloadIcon.visibility = View.GONE
                 if (searching) {
                     val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
                     progress.visibility = View.VISIBLE
                     val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-                    alertIcon.visibility = View.INVISIBLE
+                    alertIcon.visibility = View.GONE
                 } else {
                     val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
                     alertIcon.visibility = View.VISIBLE
                     val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-                    progress.visibility = View.INVISIBLE
+                    progress.visibility = View.GONE
                     val message: TextView = findViewById(R.id.activity_main_message)
                     message.text = resources.getString(R.string.main_activity_not_found)
                 }
             } else {
-                messageBox.visibility = View.INVISIBLE
+                messageBox.visibility = View.GONE
                 deviceList.visibility = View.VISIBLE
                 reloadIcon.visibility = View.VISIBLE
             }

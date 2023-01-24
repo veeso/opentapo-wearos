@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="invisible">
+            android:visibility="gone">
 
             <ProgressBar
                 style="?android:attr/progressBarStyle"
@@ -99,7 +99,7 @@
                 android:max="100"
                 android:min="1"
                 android:minHeight="48dp"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
@@ -111,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:spinnerMode="dropdown"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>
