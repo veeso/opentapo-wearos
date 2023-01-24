@@ -20,6 +20,7 @@ import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.view.Credentials
+import dev.veeso.opentapowearos.view.DeviceCache
 import dev.veeso.opentapowearos.view.DeviceData
 import dev.veeso.opentapowearos.view.DeviceListAdapter
 import kotlinx.coroutines.Dispatchers
@@ -77,40 +78,6 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun readCredentialsFromPrefs() {
-        Log.d(TAG, "Trying to retrieve credentials from shared preferences")
-        val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
-
-        val username = if (sharedPrefs.contains(SHARED_PREFS_USERNAME)) {
-            sharedPrefs.getString(SHARED_PREFS_USERNAME, "")
-        } else {
-            null
-        }
-        val password = if (sharedPrefs.contains(SHARED_PREFS_PASSWORD)) {
-            sharedPrefs.getString(SHARED_PREFS_PASSWORD, "")
-        } else {
-            null
-        }
-        if (username != null && password != null) {
-            // login and discover devices
-            Log.d(TAG, String.format("Found credentials for %s", username))
-            val fallbackIntent = Intent(this, LoginActivity::class.java)
-            runBlocking {
-                withContext(Dispatchers.IO) {
-                    try {
-                        login(username, password)
-                        Log.d(TAG, "Login successful")
-                    } catch (e: Exception) {
-                        Log.e(TAG, String.format("Login failed: %s; going to login activity", e))
-                        runOnUiThread {
-                            startActivity(fallbackIntent)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private suspend fun login(username: String, password: String) {
         Log.d(TAG, String.format("Signing in as %s", username))
         val client = TpLinkCloudClient()
@@ -126,10 +93,20 @@ class MainActivity : Activity() {
     }
 
     private fun discoverDevicesOnLocalNetwork() {
-        val deviceScanner = DeviceScanner(
-            credentials!!.username,
-            credentials!!.password
-        )
+        val cachedDeviceList = getCachedDeviceAddressList()
+        val deviceScanner = if (cachedDeviceList != null) {
+            Log.d(TAG, String.format("Found %d cached devices for scanner", cachedDeviceList.size))
+            DeviceScanner(
+                credentials!!.username,
+                credentials!!.password,
+                cachedDeviceList
+            )
+        } else {
+            DeviceScanner(
+                credentials!!.username,
+                credentials!!.password
+            )
+        }
         Log.d(TAG, "Getting local address")
         val networkAddress = getDeviceNetworkAddresses()
         Log.d(
@@ -145,6 +122,8 @@ class MainActivity : Activity() {
         // assign devices
         this.devices = deviceScanner.devices
         Log.d(TAG, String.format("Found %d devices", this.devices.size))
+        // cache devices
+        setCachedDeviceAddressList(devices.map { it.ipAddress })
     }
 
     private fun populateDeviceList() {
@@ -212,19 +191,74 @@ class MainActivity : Activity() {
                 )
             )
 
-            return Pair("192.168.178.23", "255.255.255.0")
+            //return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostName, netmask)
         }
 
         throw Exception("No link")
     }
 
+    private fun readCredentialsFromPrefs() {
+        Log.d(TAG, "Trying to retrieve credentials from shared preferences")
+        val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+
+        val username = if (sharedPrefs.contains(SHARED_PREFS_USERNAME)) {
+            sharedPrefs.getString(SHARED_PREFS_USERNAME, "")
+        } else {
+            null
+        }
+        val password = if (sharedPrefs.contains(SHARED_PREFS_PASSWORD)) {
+            sharedPrefs.getString(SHARED_PREFS_PASSWORD, "")
+        } else {
+            null
+        }
+        if (username != null && password != null) {
+            // login and discover devices
+            Log.d(TAG, String.format("Found credentials for %s", username))
+            val fallbackIntent = Intent(this, LoginActivity::class.java)
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    try {
+                        login(username, password)
+                        Log.d(TAG, "Login successful")
+                    } catch (e: Exception) {
+                        Log.e(TAG, String.format("Login failed: %s; going to login activity", e))
+                        runOnUiThread {
+                            startActivity(fallbackIntent)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCachedDeviceAddressList(): List<String>? {
+        Log.d(TAG, "Trying to retrieve cached device list from shared preferences")
+        val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+        if (sharedPrefs.contains(SHARED_PREFS_DEVICE_ADDRESS)) {
+            val cachedDevices = sharedPrefs.getString(SHARED_PREFS_DEVICE_ADDRESS, "")
+            Log.d(TAG, String.format("Found device list: %s", cachedDevices))
+            return DeviceCache.deserialize(cachedDevices!!)
+        }
+        return null
+    }
+
+    private fun setCachedDeviceAddressList(deviceList: List<String>) {
+        Log.d(TAG, "Writing ip list to preferences")
+        val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        val payload = DeviceCache.serialize(deviceList)
+        editor.putString(SHARED_PREFS_DEVICE_ADDRESS, payload)
+        editor.apply()
+        Log.d(TAG, String.format("Device list written as %s", payload))
+    }
 
     companion object {
         const val TAG = "MainActivity"
         const val SHARED_PREFS = "OpenTapoWearOs"
         const val SHARED_PREFS_USERNAME = "username"
         const val SHARED_PREFS_PASSWORD = "password"
+        const val SHARED_PREFS_DEVICE_ADDRESS = "deviceAddressList"
     }
 
 }

@@ -2,7 +2,6 @@ package dev.veeso.opentapowearos.tapo.api.tapo
 
 import android.util.Log
 import dev.veeso.opentapowearos.net.DeviceScanner
-import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.Crypter
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.CryptoUtils
 import dev.veeso.opentapowearos.tapo.api.tapo.crypto.KeyPair

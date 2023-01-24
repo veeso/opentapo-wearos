@@ -11,6 +11,8 @@ class DeviceScanner(username: String, password: String) {
 
     private val username: String
     private val password: String
+    private var addressToSearch: List<String>? = null
+
     val devices: MutableList<Device>
 
     init {
@@ -19,21 +21,21 @@ class DeviceScanner(username: String, password: String) {
         this.devices = mutableListOf()
     }
 
+    constructor(username: String, password: String, addressToSearch: List<String>) : this(
+        username,
+        password
+    ) {
+        this.addressToSearch = addressToSearch.sorted()
+    }
+
     fun scanNetwork(deviceIp: String, deviceMask: String) {
-
-        val networkAddress = NetworkUtils.getNetworkAddress(deviceIp, deviceMask)
-        Log.d(TAG, String.format("Found network address: %s", networkAddress))
-        val broadcastAddress = NetworkUtils.getBroadcastAddress(deviceIp, deviceMask)
-        Log.d(TAG, String.format("Found broadcast address: %s", broadcastAddress))
-        Log.d(TAG, String.format("Scanning network %s", networkAddress))
-
-        var workingAddress = NetworkUtils.incrementAddress(networkAddress)
-
-        // list of address to fetch
-        val addressToFetch = mutableListOf<Inet4Address>()
-        while (workingAddress != broadcastAddress) {
-            addressToFetch.add(workingAddress)
-            workingAddress = NetworkUtils.incrementAddress(workingAddress)
+        // get address to fetch
+        val addressToFetch = if (this.addressToSearch != null) {
+            this.addressToSearch!!.map {
+                Inet4Address.getByName(it) as Inet4Address
+            }
+        } else {
+            buildNetworkAddressList(deviceIp, deviceMask)
         }
 
         val scanners = addressToFetch.map {
@@ -58,6 +60,24 @@ class DeviceScanner(username: String, password: String) {
             }
         }
         Log.d(TAG, String.format("Scan terminated; found %d devices", this.devices.size))
+    }
+
+    private fun buildNetworkAddressList(deviceIp: String, deviceMask: String): List<Inet4Address> {
+        val networkAddress = NetworkUtils.getNetworkAddress(deviceIp, deviceMask)
+        Log.d(TAG, String.format("Found network address: %s", networkAddress))
+        val broadcastAddress = NetworkUtils.getBroadcastAddress(deviceIp, deviceMask)
+        Log.d(TAG, String.format("Found broadcast address: %s", broadcastAddress))
+        Log.d(TAG, String.format("Scanning network %s", networkAddress))
+        var workingAddress = NetworkUtils.incrementAddress(networkAddress)
+
+        val addressToFetch = mutableListOf<Inet4Address>()
+
+        while (workingAddress != broadcastAddress) {
+            addressToFetch.add(workingAddress)
+            workingAddress = NetworkUtils.incrementAddress(workingAddress)
+        }
+
+        return addressToFetch
     }
 
     companion object {
