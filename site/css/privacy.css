@@ -1,0 +1,25 @@
+.privacy {
+  color: white;
+  padding: 32px 64px;
+  text-shadow: 2px 0 black, -2px 0 black, 0 2px black, 0 -2px black,
+    1px 1px black, -1px -1px black, 1px -1px black, -1px 1px black;
+}
+
+.privacy p {
+  padding: 24px;
+  text-align: justify;
+}
+
+@media screen and (max-width: 640px) {
+  .privacy {
+    padding: 8px;
+  }
+
+  .privacy p {
+    text-align: left;
+  }
+
+  .privacy h2 {
+    text-align: center;
+  }
+}

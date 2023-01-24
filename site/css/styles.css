@@ -1,0 +1,135 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap");
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #28aafa;
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  min-width: 100vw;
+  overflow-x: hidden;
+  padding: 0;
+}
+
+.root {
+  align-items: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.title {
+  padding: 1em;
+  text-align: center;
+}
+
+.download-links-container {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  justify-content: center;
+}
+
+.icon {
+  height: 1.4em;
+  width: auto;
+}
+
+.icon path {
+  fill: white !important;
+}
+
+.opentapo-logo img {
+  height: auto;
+  max-height: 50vh;
+  max-width: 80vw;
+  width: auto;
+}
+
+.opentapo-button {
+  background: #fed743;
+  border: 2px solid black;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.95rem;
+  padding: 20px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media screen and (max-width: 640px) {
+  .opentapo-button {
+    font-size: 1.2rem;
+    padding: 12px;
+  }
+}
+
+.opentapo-button:hover {
+  background: #f2c729;
+  color: white;
+}
+
+/** footer */
+
+.footer {
+  align-items: start;
+  color: white;
+  display: flex;
+  flex-direction: row;
+  font-size: 1.5em;
+  gap: 24px;
+  justify-content: space-between;
+  padding: 2% 2%;
+  width: 100%;
+}
+
+.footer--links {
+  align-items: start;
+  color: white;
+  display: flex;
+  gap: 24px;
+  flex-direction: column;
+  justify-content: start;
+}
+
+.footer--links--link {
+  color: white;
+  display: block;
+  padding: 8px 4px;
+  text-decoration: none;
+}
+
+.footer--links--link:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.footer--contacts {
+  align-items: start;
+  color: white;
+  display: flex;
+  gap: 24px;
+  flex-direction: column;
+  justify-content: start;
+}
+
+.footer--contacts--link {
+  color: white;
+  display: block;
+  padding: 8px 4px;
+  text-decoration: none;
+}
+
+.footer--contacts--link:hover {
+  color: white;
+  text-decoration: underline;
+}
