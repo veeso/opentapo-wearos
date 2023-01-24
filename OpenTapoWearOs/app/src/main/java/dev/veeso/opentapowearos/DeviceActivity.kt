@@ -10,11 +10,10 @@ import dev.veeso.opentapowearos.view.Color
 import dev.veeso.opentapowearos.view.Color.Companion.COLOR_LIST
 import dev.veeso.opentapowearos.view.Credentials
 import dev.veeso.opentapowearos.view.DeviceData
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 
+@OptIn(DelicateCoroutinesApi::class)
 class DeviceActivity : Activity() {
 
     private lateinit var device: Device
@@ -54,10 +53,14 @@ class DeviceActivity : Activity() {
     }
 
     private fun login(credentials: Credentials) {
-        runBlocking {
+        setLoading(true)
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                device.login(credentials.username, credentials.password)
+                if (!device.authenticated) {
+                    device.login(credentials.username, credentials.password)
+                }
                 fetchDeviceState()
+                setLoading(false)
             }
         }
     }
@@ -96,7 +99,7 @@ class DeviceActivity : Activity() {
                 }
             })
         } else {
-            brightnessSeekBar.visibility = View.INVISIBLE
+            brightnessSeekBar.visibility = View.GONE
         }
         // color
         val colorList: Spinner = findViewById(R.id.device_activity_color)
@@ -124,65 +127,72 @@ class DeviceActivity : Activity() {
                 }
             }
         } else {
-            colorList.visibility = View.INVISIBLE
+            colorList.visibility = View.GONE
         }
     }
 
     private fun fetchDeviceState() {
         Log.d(TAG, "Fetching device state...")
-        runBlocking {
+        setLoading(true)
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 val deviceInfo = device.getDeviceStatus()
-                runOnUiThread {
-                    setPowerView(deviceInfo.deviceOn)
-                    if (deviceInfo.brightness != null) {
-                        setBrightnessView(deviceInfo.brightness)
-                    }
+                setPowerView(deviceInfo.deviceOn)
+                if (deviceInfo.brightness != null) {
+                    setBrightnessView(deviceInfo.brightness)
                 }
+                setLoading(false)
             }
         }
     }
 
     private fun setPowerView(state: Boolean) {
-        val powerState: Switch = findViewById(R.id.device_activity_power)
-        powerState.isChecked = state
-        val powerLabel: TextView = findViewById(R.id.device_activity_power_label)
-        powerLabel.text = String.format(
-            resources.getString(R.string.device_activity_power), if (state) {
-                resources.getString(R.string.device_activity_power_on)
-            } else {
-                resources.getString(R.string.device_activity_power_off)
-            }
-        )
+        runOnUiThread {
+            val powerState: Switch = findViewById(R.id.device_activity_power)
+            powerState.isChecked = state
+            val powerLabel: TextView = findViewById(R.id.device_activity_power_label)
+            powerLabel.text = String.format(
+                resources.getString(R.string.device_activity_power), if (state) {
+                    resources.getString(R.string.device_activity_power_on)
+                } else {
+                    resources.getString(R.string.device_activity_power_off)
+                }
+            )
+        }
     }
 
     private fun setBrightnessView(brightness: Int) {
-        val brightnessLabel: TextView =
-            findViewById(R.id.device_activity_brightness_label)
-        brightnessLabel.text =
-            String.format(
-                resources.getString(R.string.device_activity_brightness),
-                brightness
-            )
-        val brightnessSeekBar: SeekBar = findViewById(R.id.device_activity_brightness)
-        brightnessSeekBar.progress = brightness
+        runOnUiThread {
+            val brightnessLabel: TextView =
+                findViewById(R.id.device_activity_brightness_label)
+            brightnessLabel.text =
+                String.format(
+                    resources.getString(R.string.device_activity_brightness),
+                    brightness
+                )
+            val brightnessSeekBar: SeekBar = findViewById(R.id.device_activity_brightness)
+            brightnessSeekBar.progress = brightness
+        }
     }
 
     private fun setPowerState(state: Boolean) {
-        runBlocking {
+        setLoading(true)
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 if (state) {
                     device.on()
                 } else {
                     device.off()
                 }
+                fetchDeviceState()
+                setLoading(false)
             }
         }
-        fetchDeviceState()
     }
 
     private fun setBrightness(brightness: Int) {
-        runBlocking {
+        setLoading(true)
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 when (device) {
                     is L510 -> {
@@ -201,13 +211,15 @@ class DeviceActivity : Activity() {
                         (device as L630).setBrightness(brightness)
                     }
                 }
+                fetchDeviceState()
+                setLoading(false)
             }
         }
-        fetchDeviceState()
     }
 
     private fun setColor(color: Color) {
-        runBlocking {
+        setLoading(true)
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 when (device) {
                     is L530 -> {
@@ -217,9 +229,25 @@ class DeviceActivity : Activity() {
                         (device as L630).setColor(color)
                     }
                 }
+                fetchDeviceState()
+                setLoading(false)
             }
         }
-        fetchDeviceState()
+
+    }
+
+    private fun setLoading(loading: Boolean) {
+        runOnUiThread {
+            val dataLayout: LinearLayout = findViewById(R.id.device_activity_data)
+            val loadingLayout: LinearLayout = findViewById(R.id.device_activity_wait)
+            if (loading) {
+                dataLayout.visibility = View.GONE
+                loadingLayout.visibility = View.VISIBLE
+            } else {
+                dataLayout.visibility = View.VISIBLE
+                loadingLayout.visibility = View.GONE
+            }
+        }
     }
 
     companion object {
