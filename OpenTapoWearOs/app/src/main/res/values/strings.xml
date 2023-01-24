@@ -4,6 +4,7 @@
     This string is used for square devices and overridden by hello_world in
     values-round/strings.xml for round devices.
     -->
+    <string name="main_activity_title">Tapo Devices</string>
     <string name="main_activity_loading">Searching for Tapo devices…</string>
     <string name="main_activity_not_found">Could not find any Tapo device</string>
     <string name="login_activity_email">Email Address</string>
@@ -21,4 +22,5 @@
     <string name="device_activity_color">Color: %s</string>
     <string name="activity_main_not_found">no device found</string>
     <string name="defines_the_brightness_value_for_seek_bar">defines the brightness value for seek bar</string>
+    <string name="reload_device_list">reload device list</string>
 </resources>

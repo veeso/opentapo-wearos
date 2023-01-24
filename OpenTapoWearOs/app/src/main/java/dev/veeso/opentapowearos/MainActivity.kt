@@ -38,11 +38,15 @@ class MainActivity : Activity() {
     // devices
     private var devices: MutableList<Device> = mutableListOf()
 
+    // network
+    private var deviceNetwork: Pair<String, String>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
     }
 
     override fun onResume() {
@@ -76,6 +80,22 @@ class MainActivity : Activity() {
                 startActivity(Intent(this, LoginActivity::class.java))
             }
         }
+
+        // add reload listener
+        val reloadIcon: ImageView = findViewById(R.id.activity_main_header_reload)
+        reloadIcon.setOnClickListener {
+            onReloadDeviceList(it)
+        }
+    }
+
+    private fun onReloadDeviceList(view: View) {
+        deleteCachedDeviceAddressList()
+        setMessageBox(visible = true, searching = true)
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                discoverDevices()
+            }
+        }
     }
 
     private suspend fun login(username: String, password: String) {
@@ -89,12 +109,14 @@ class MainActivity : Activity() {
     private fun discoverDevices() {
         this.devices.clear()
         discoverDevicesOnLocalNetwork()
-        populateDeviceList()
+        runOnUiThread {
+            populateDeviceList()
+        }
     }
 
     private fun discoverDevicesOnLocalNetwork() {
         val cachedDeviceList = getCachedDeviceAddressList()
-        val deviceScanner = if (cachedDeviceList != null) {
+        val deviceScanner = if (cachedDeviceList != null && cachedDeviceList.isNotEmpty()) {
             Log.d(TAG, String.format("Found %d cached devices for scanner", cachedDeviceList.size))
             DeviceScanner(
                 credentials!!.username,
@@ -108,16 +130,10 @@ class MainActivity : Activity() {
             )
         }
         Log.d(TAG, "Getting local address")
-        val networkAddress = getDeviceNetworkAddresses()
-        Log.d(
-            TAG,
-            String.format(
-                "Found local device address %s/%s",
-                networkAddress.first,
-                networkAddress.second
-            )
-        )
-        deviceScanner.scanNetwork(networkAddress.first, networkAddress.second)
+        if (deviceNetwork == null) {
+            this.deviceNetwork = getDeviceNetworkAddresses()
+        }
+        deviceScanner.scanNetwork(deviceNetwork!!.first, deviceNetwork!!.second)
         Log.d(TAG, "Running ip discovery service")
         // assign devices
         this.devices = deviceScanner.devices
@@ -165,7 +181,7 @@ class MainActivity : Activity() {
                 val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
                 progress.visibility = View.INVISIBLE
                 val message: TextView = findViewById(R.id.activity_main_message)
-                message.text = R.string.main_activity_not_found.toString()
+                message.text = resources.getString(R.string.main_activity_not_found)
             }
         } else {
             val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
@@ -191,7 +207,15 @@ class MainActivity : Activity() {
                 )
             )
 
-            //return Pair("192.168.178.23", "255.255.255.0")
+            Log.d(
+                TAG,
+                String.format(
+                    "Found local device address %s and netmask %s",
+                    ipAddress.hostName,
+                    netmask
+                )
+            )
+            return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostName, netmask)
         }
 
@@ -251,6 +275,15 @@ class MainActivity : Activity() {
         editor.putString(SHARED_PREFS_DEVICE_ADDRESS, payload)
         editor.apply()
         Log.d(TAG, String.format("Device list written as %s", payload))
+    }
+
+    private fun deleteCachedDeviceAddressList() {
+        Log.d(TAG, "Deleting ip list from preferences")
+        val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
+        val editor = sharedPrefs.edit()
+        editor.remove(SHARED_PREFS_DEVICE_ADDRESS)
+        editor.commit()
+        Log.d(TAG, "Device address cleared")
     }
 
     companion object {
