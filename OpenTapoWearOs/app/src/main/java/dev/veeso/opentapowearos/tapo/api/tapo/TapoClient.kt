@@ -49,7 +49,7 @@ class TapoClient {
     }
 
     constructor(ipAddress: Inet4Address) {
-        this.url = String.format("http://%s/app", ipAddress.hostName)
+        this.url = String.format("http://%s/app", ipAddress.hostAddress!!)
     }
 
     constructor(url: String) {

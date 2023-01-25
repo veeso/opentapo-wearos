@@ -22,7 +22,7 @@ class DeviceScannerWorker(address: Inet4Address, username: String, password: Str
         this.address = address
         this.username = username
         this.password = password
-        this.tag = String.format("DeviceScannerWorker[%s]", address.hostName)
+        this.tag = String.format("DeviceScannerWorker[%s]", address.hostAddress!!)
     }
 
     override fun run() {
