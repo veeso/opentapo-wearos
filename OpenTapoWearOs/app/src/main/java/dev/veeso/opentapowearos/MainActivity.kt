@@ -25,6 +25,7 @@ import dev.veeso.opentapowearos.view.DeviceListAdapter
 import kotlinx.coroutines.*
 import java.net.Inet4Address
 
+@OptIn(DelicateCoroutinesApi::class)
 class MainActivity : Activity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -92,7 +93,6 @@ class MainActivity : Activity() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun onReloadDeviceList() {
         deleteCachedDeviceAddressList()
         setMessageBox(visible = true, searching = true)
@@ -125,7 +125,6 @@ class MainActivity : Activity() {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun reloadDeviceState() {
         Log.d(TAG, "Reloading device state...")
         this.devices.forEach {
@@ -167,7 +166,6 @@ class MainActivity : Activity() {
         discoverDevices()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun discoverDevices() {
 
         val connectivityManager: ConnectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -213,7 +211,14 @@ class MainActivity : Activity() {
         }
         Log.d(TAG, "Getting local address")
         if (deviceNetwork == null) {
-            this.deviceNetwork = getDeviceNetworkAddresses()
+            try {
+                this.deviceNetwork = getDeviceNetworkAddresses()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e(TAG, String.format("Failed to get device network address: %s", e))
+                setMessageBox(visible = false, searching = false, R.string.main_activity_no_network)
+                return
+            }
         }
         deviceScanner.scanNetwork(deviceNetwork!!.first, deviceNetwork!!.second)
         Log.d(TAG, "Running ip discovery service")
@@ -253,7 +258,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun setMessageBox(visible: Boolean, searching: Boolean) {
+    private fun setMessageBox(visible: Boolean, searching: Boolean, messageId: Int = R.string.main_activity_not_found) {
         runOnUiThread {
             val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
             val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
@@ -273,7 +278,7 @@ class MainActivity : Activity() {
                     val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
                     progress.visibility = View.GONE
                     val message: TextView = findViewById(R.id.activity_main_message)
-                    message.text = resources.getString(R.string.main_activity_not_found)
+                    message.text = resources.getString(messageId)
                 }
             } else {
                 messageBox.visibility = View.GONE
@@ -295,22 +300,13 @@ class MainActivity : Activity() {
             Log.d(
                 TAG,
                 String.format(
-                    "Device IP address is %s and netmask is %s",
-                    ipAddress.hostName,
-                    netmask
-                )
-            )
-
-            Log.d(
-                TAG,
-                String.format(
                     "Found local device address %s and netmask %s",
-                    ipAddress.hostName,
+                    ipAddress.hostAddress,
                     netmask
                 )
             )
             // return Pair("192.168.178.23", "255.255.255.0")
-            return Pair(ipAddress.hostName, netmask)
+            return Pair(ipAddress.hostAddress!!, netmask)
         }
 
         throw Exception("No link")

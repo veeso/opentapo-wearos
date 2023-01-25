@@ -136,10 +136,14 @@ class DeviceActivity : Activity() {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                val deviceInfo = device.getDeviceStatus()
-                setPowerView(deviceInfo.deviceOn)
-                if (deviceInfo.brightness != null) {
-                    setBrightnessView(deviceInfo.brightness)
+                try {
+                    val deviceInfo = device.getDeviceStatus()
+                    setPowerView(deviceInfo.deviceOn)
+                    if (deviceInfo.brightness != null) {
+                        setBrightnessView(deviceInfo.brightness)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, String.format("failed to collect device state: %s", e))
                 }
                 setLoading(false)
             }
@@ -179,12 +183,18 @@ class DeviceActivity : Activity() {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                if (state) {
-                    device.on()
-                } else {
-                    device.off()
+                try {
+                    if (state) {
+                        device.on()
+                    } else {
+                        device.off()
+                    }
+                    fetchDeviceState()
+                } catch (e: Exception) {
+                    Log.e(TAG, String.format("Failed to set power state: %s", e))
+                    // revert state
+                    setPowerView(!state)
                 }
-                fetchDeviceState()
                 setLoading(false)
             }
         }
@@ -194,24 +204,29 @@ class DeviceActivity : Activity() {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                when (device) {
-                    is L510 -> {
-                        (device as L510).setBrightness(brightness)
+                try {
+                    when (device) {
+                        is L510 -> {
+                            (device as L510).setBrightness(brightness)
+                        }
+                        is L520 -> {
+                            (device as L520).setBrightness(brightness)
+                        }
+                        is L530 -> {
+                            (device as L530).setBrightness(brightness)
+                        }
+                        is L610 -> {
+                            (device as L610).setBrightness(brightness)
+                        }
+                        is L630 -> {
+                            (device as L630).setBrightness(brightness)
+                        }
                     }
-                    is L520 -> {
-                        (device as L520).setBrightness(brightness)
-                    }
-                    is L530 -> {
-                        (device as L530).setBrightness(brightness)
-                    }
-                    is L610 -> {
-                        (device as L610).setBrightness(brightness)
-                    }
-                    is L630 -> {
-                        (device as L630).setBrightness(brightness)
-                    }
+                    fetchDeviceState()
+                    setPowerView(true)
+                } catch (e: Exception) {
+                    Log.e(TAG, String.format("Failed to set brightness: %s", e))
                 }
-                fetchDeviceState()
                 setLoading(false)
             }
         }
@@ -221,15 +236,20 @@ class DeviceActivity : Activity() {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                when (device) {
-                    is L530 -> {
-                        (device as L530).setColor(color)
+                try {
+                    when (device) {
+                        is L530 -> {
+                            (device as L530).setColor(color)
+                        }
+                        is L630 -> {
+                            (device as L630).setColor(color)
+                        }
                     }
-                    is L630 -> {
-                        (device as L630).setColor(color)
-                    }
+                    fetchDeviceState()
+                    setPowerView(true)
+                } catch (e: Exception) {
+                    Log.e(TAG, String.format("Failed to set color: %s", e))
                 }
-                fetchDeviceState()
                 setLoading(false)
             }
         }

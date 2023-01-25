@@ -58,10 +58,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:lines="2"
+            android:maxLines="4"
             android:text="@string/main_activity_loading"
             android:textSize="14sp"
-            android:maxLines="4"
-            android:lines="2"
             android:visibility="visible" />
     </LinearLayout>
 
@@ -80,16 +80,19 @@
         android:layout_height="match_parent"
         android:gravity="center_horizontal|bottom"
         android:orientation="horizontal"
+        android:paddingTop="16dp"
         android:visibility="visible">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/activity_main_reload"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:visibility="gone"
+            android:background="#00FFFFFF"
             android:contentDescription="@string/reload_device_list"
-            android:src="@android:drawable/ic_popup_sync" />
+            android:src="@android:drawable/ic_popup_sync"
+            android:tooltipText="@string/main_activity_reload_devices"
+            android:visibility="gone" />
 
     </LinearLayout>
 

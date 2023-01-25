@@ -31,10 +31,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/device_activity_wait"
-                android:textSize="16sp"
+                android:lines="2"
                 android:maxLines="4"
-                android:lines="2" />
+                android:text="@string/device_activity_wait"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -110,6 +110,7 @@
                 android:id="@+id/device_activity_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="24dp"
                 android:spinnerMode="dropdown"
                 android:visibility="gone" />
 

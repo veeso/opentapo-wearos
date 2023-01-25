@@ -170,7 +170,7 @@ class TapoClient {
             contentType(ContentType.Application.Json)
             setBody(payload)
             timeout {
-                requestTimeoutMillis = 3000
+                requestTimeoutMillis = 15000
             }
         }
 
