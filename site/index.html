@@ -40,53 +40,95 @@
   <body>
     <main>
       <div class="root">
-        <h1 class="title">OpenTapo</h1>
+        <div class="intro">
+          <h1 class="title">OpenTapo</h1>
+          <p class="description">
+            A WearOs app to control your TP-Link Tapo devices
+          </p>
+        </div>
         <div class="opentapo-logo">
           <img src="assets/images/logo.png" alt="opentapo logo" />
         </div>
         <div class="download-links-container">
-          <a class="opentapo-button" target="_blank">
+          <a class="opentapo-button opentapo-button--yellow" target="_blank">
             <img class="icon" src="/assets/icons/google-play.svg" alt="" />
             <span>Google Play</span>
           </a>
+          <a
+            class="opentapo-button opentapo-button--black"
+            href="https://github.com/veeso/opentapo-wearos"
+            target="_blank"
+          >
+            <img class="icon" src="/assets/icons/github.svg" alt="github" />
+            <span>GitHub</span>
+          </a>
+          <a
+            class="opentapo-button opentapo-button--blue"
+            href="https://ko-fi.com/veeso"
+            target="_blank"
+          >
+            <img class="icon" src="/assets/icons/ko-fi.webp" alt="ko-fi" />
+            <span>Ko-Fi</span>
+          </a>
+        </div>
+        <div class="features">
+          <h2>Features:</h2>
+          <ul class="features-list">
+            <li>
+              Automatically discovers the devices present on your local WiFi
+              network
+            </li>
+            <li>Control all your TAPO devices</li>
+            <li>Set power state</li>
+            <li>Set lamp brightness</li>
+            <li>Set lamp color</li>
+          </ul>
         </div>
       </div>
     </main>
     <footer>
       <div class="footer">
-        <div class="footer--links">
-          <h2>Links</h2>
-          <a class="footer--links--link" href="/">Home</a>
-          <a class="footer--links--link" href="/privacy.html">Privacy</a>
-          <a class="footer--links--link" href="https://github.com/veeso/opentapo-wearos" target="_blank">Repository</a>
+        <div class="footer--sections">
+          <div class="footer--links">
+            <h2>Links</h2>
+            <a class="footer--links--link" href="/">Home</a>
+            <a class="footer--links--link" href="/privacy.html">Privacy</a>
+            <a
+              class="footer--links--link"
+              href="https://github.com/veeso/opentapo-wearos"
+              target="_blank"
+              >Repository</a
+            >
+          </div>
+          <div class="footer--contacts">
+            <h2>Contacts</h2>
+            <a
+              class="footer--contacts--link"
+              href="https://linktr.ee/veeso"
+              target="_blank"
+            >
+              <img class="icon" src="/assets/icons/linktree.svg" alt="" />
+              Linktree
+            </a>
+            <a
+              class="footer--contacts--link"
+              href="https://github.com/veeso"
+              target="_blank"
+            >
+              <img class="icon" src="/assets/icons/github.svg" alt="" />
+              Github
+            </a>
+            <a
+              class="footer--contacts--link"
+              href="https://twitter.com/veeso_dev"
+              target="_blank"
+            >
+              <img class="icon" src="/assets/icons/twitter.svg" alt="" />
+              Twitter
+            </a>
+          </div>
         </div>
-        <div class="footer--contacts">
-          <h2>Contacts</h2>
-          <a
-            class="footer--contacts--link"
-            href="https://linktr.ee/veeso"
-            target="_blank"
-          >
-            <img class="icon" src="/assets/icons/linktree.svg" alt="" />
-            Linktree
-          </a>
-          <a
-            class="footer--contacts--link"
-            href="https://github.com/veeso"
-            target="_blank"
-          >
-            <img class="icon" src="/assets/icons/github.svg" alt="" />
-            Github
-          </a>
-          <a
-            class="footer--contacts--link"
-            href="https://twitter.com/veeso_dev"
-            target="_blank"
-          >
-            <img class="icon" src="/assets/icons/twitter.svg" alt="" />
-            Twitter
-          </a>
-        </div>
+        <div class="footer--copyright">Copyright © Christian Visintin 2023</div>
       </div>
     </footer>
   </body>

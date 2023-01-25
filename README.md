@@ -36,9 +36,9 @@
 
 ---
 
-## About opentapo-wearos 💡
+## About OpenTapo 💡
 
-opentapo-wearos is a feature rich terminal file transfer and explorer, with support for SCP/SFTP/FTP/S3. So basically is a terminal utility with an TUI to connect to a remote server to retrieve and upload files and to interact with the local file system. It is **Linux**, **MacOS**, **FreeBSD**, **NetBSD** and **Windows** compatible.
+OpenTapo WearOS is a WearOS app to control your TpLink Tapo plugs and light bulbs.
 
 ![devicelist](assets/images/opentapo-screenshot1.png)
 

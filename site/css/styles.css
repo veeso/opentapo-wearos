@@ -24,8 +24,22 @@ body {
 }
 
 .title {
+  font-size: 3em;
   padding: 1em;
   text-align: center;
+}
+
+.description {
+  font-size: 1.5em;
+}
+
+.features {
+  border-bottom: 2px solid white;
+  padding: 1em;
+}
+
+.features-list {
+  font-size: 1.5em;
 }
 
 .download-links-container {
@@ -34,6 +48,12 @@ body {
   flex-direction: row;
   gap: 16px;
   justify-content: center;
+}
+
+@media screen and (max-width: 640px) {
+  .download-links-container {
+    flex-direction: column;
+  }
 }
 
 .icon {
@@ -53,7 +73,6 @@ body {
 }
 
 .opentapo-button {
-  background: #fed743;
   border: 2px solid black;
   border-radius: 5px;
   color: white;
@@ -74,22 +93,48 @@ body {
 }
 
 .opentapo-button:hover {
-  background: #f2c729;
   color: white;
+}
+
+.opentapo-button--yellow {
+  background: #fed743;
+}
+
+.opentapo-button--yellow:hover {
+  background: #f2c729;
+}
+
+.opentapo-button--black {
+  background: #404040;
+}
+
+.opentapo-button--black:hover {
+  background: #202020;
+}
+
+.opentapo-button--blue {
+  background: #13c3ff;
+}
+
+.opentapo-button--blue:hover {
+  background: #12b6ec;
 }
 
 /** footer */
 
 .footer {
-  align-items: start;
   color: white;
+  padding: 2% 2%;
+  width: 100%;
+}
+
+.footer--sections {
+  align-items: start;
   display: flex;
   flex-direction: row;
   font-size: 1.5em;
   gap: 24px;
   justify-content: space-between;
-  padding: 2% 2%;
-  width: 100%;
 }
 
 .footer--links {
@@ -132,4 +177,8 @@ body {
 .footer--contacts--link:hover {
   color: white;
   text-decoration: underline;
+}
+
+.footer--copyright {
+  text-align: center;
 }
