@@ -21,7 +21,7 @@ class DeviceActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.device_activity)
+        setContentView(R.layout.activity_device)
     }
 
     override fun onResume() {

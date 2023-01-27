@@ -26,5 +26,9 @@
     <string name="device_activity_wait">Please wait…</string>
     <string name="activity_main_not_found">no device found</string>
     <string name="defines_the_brightness_value_for_seek_bar">defines the brightness value for seek bar</string>
-    <string name="reload_device_list">reload device list</string>
+    <string name="new_group_activity_title">Create new group for %d devices</string>
+    <string name="new_group_activity_group_name">Enter group name</string>
+    <string name="new_group_activity_group_name_placeholder">living room</string>
+    <string name="new_group_activity_group_name_error_empty_name">Group name cannot be empty</string>
+    <string name="new_group_activity_group_name_error_duped">A group with this name already exists</string>
 </resources>

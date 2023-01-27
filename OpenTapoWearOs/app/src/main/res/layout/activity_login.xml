@@ -10,7 +10,7 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/signin_loading_layout"
+            android:id="@+id/login_activity_loading_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -35,7 +35,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/signin_login_layout"
+            android:id="@+id/activity_login_login_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -45,7 +45,7 @@
             android:visibility="visible">
 
             <TextView
-                android:id="@+id/signin_username_label"
+                android:id="@+id/activity_login_username_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -53,7 +53,7 @@
                 android:textSize="16sp" />
 
             <EditText
-                android:id="@+id/signin_username"
+                android:id="@+id/activity_login_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="emailAddress"
@@ -65,7 +65,7 @@
                 android:minHeight="52dp" />
 
             <TextView
-                android:id="@+id/signin_password_label"
+                android:id="@+id/activity_login_password_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -73,7 +73,7 @@
                 android:textSize="16sp" />
 
             <EditText
-                android:id="@+id/signin_password"
+                android:id="@+id/activity_login_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="password"
@@ -85,7 +85,7 @@
                 android:minHeight="52dp" />
 
             <Switch
-                android:id="@+id/signin_save_password"
+                android:id="@+id/activity_login_save_password"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -94,7 +94,7 @@
                 android:text="@string/login_activity_save_password" />
 
             <TextView
-                android:id="@+id/error_label"
+                android:id="@+id/activity_login_error_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -106,7 +106,7 @@
                 android:visibility="gone" />
 
             <Button
-                android:id="@+id/signin_button"
+                android:id="@+id/activity_login_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#2196F3"
