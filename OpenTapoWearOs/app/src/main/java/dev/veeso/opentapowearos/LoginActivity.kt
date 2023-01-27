@@ -8,14 +8,15 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.view.Credentials
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import dev.veeso.opentapowearos.view.LoginActivityState
+import kotlinx.coroutines.*
 
+@OptIn(DelicateCoroutinesApi::class)
 class LoginActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,9 +79,11 @@ class LoginActivity : Activity() {
     }
 
     private fun setError(message: String) {
-        val errorLabel: TextView = findViewById(R.id.error_label)
-        errorLabel.text = message
-        errorLabel.visibility = View.VISIBLE
+        runOnUiThread {
+            val errorLabel: TextView = findViewById(R.id.error_label)
+            errorLabel.text = message
+            errorLabel.visibility = View.VISIBLE
+        }
     }
 
     private fun saveCredentialsToPrefs(username: String, password: String, savePassword: Boolean) {
@@ -112,8 +115,9 @@ class LoginActivity : Activity() {
     }
 
     private fun doSignIn(username: String, password: String, savePassword: Boolean) {
+        setViewState(LoginActivityState.SIGNING_IN)
         val intent = Intent()
-        runBlocking {
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 try {
                     val credentials = login(username, password)
@@ -121,16 +125,16 @@ class LoginActivity : Activity() {
                     saveCredentialsToPrefs(username, password, savePassword)
                     // return to main activity
                     intent.putExtra(INTENT_OUTPUT, credentials)
+                    setViewState(LoginActivityState.LOGIN_FORM)
+                    setResult(RESULT_OK, intent)
+                    finish()
                 } catch (e: Exception) {
                     Log.d(TAG, String.format("Login failed: %s", e))
-                    runOnUiThread {
-                        setError(getString(R.string.activity_login_signin_error))
-                    }
+                    setError(getString(R.string.activity_login_signin_error))
+                    setViewState(LoginActivityState.LOGIN_FORM)
                 }
             }
         }
-        setResult(RESULT_OK, intent)
-        finish()
     }
 
     private suspend fun login(username: String, password: String): Credentials {
@@ -138,6 +142,34 @@ class LoginActivity : Activity() {
         client.login(username, password)
 
         return Credentials(username, password)
+    }
+
+    private fun setViewState(state: LoginActivityState) {
+        Log.d(TAG, String.format("Entering new view state: %s", state))
+        when (state) {
+            LoginActivityState.LOGIN_FORM -> enterLoginForm()
+            LoginActivityState.SIGNING_IN -> enterSigningIn()
+        }
+    }
+
+    private fun enterLoginForm() {
+        runOnUiThread {
+            Log.d(TAG, "Entering login form state")
+            val loginLayout: LinearLayout = findViewById(R.id.signin_login_layout)
+            val loadingLayout: LinearLayout = findViewById(R.id.signin_loading_layout)
+            loginLayout.visibility = View.VISIBLE
+            loadingLayout.visibility = View.GONE
+        }
+    }
+
+    private fun enterSigningIn() {
+        runOnUiThread {
+            Log.d(TAG, "Entering signing-in")
+            val loginLayout: LinearLayout = findViewById(R.id.signin_login_layout)
+            val loadingLayout: LinearLayout = findViewById(R.id.signin_loading_layout)
+            loginLayout.visibility = View.GONE
+            loadingLayout.visibility = View.VISIBLE
+        }
     }
 
     companion object {
