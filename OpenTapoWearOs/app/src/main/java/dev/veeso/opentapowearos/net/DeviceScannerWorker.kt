@@ -4,7 +4,6 @@ import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.device.Device
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.net.Inet4Address
@@ -26,9 +25,6 @@ class DeviceScannerWorker(address: Inet4Address, username: String, password: Str
     }
 
     override fun run() {
-        if (!address.isReachable(1000)) {
-            return
-        }
         val client = TapoClient(address)
         runBlocking {
             withContext(Dispatchers.IO) {
