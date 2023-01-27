@@ -451,7 +451,7 @@ class MainActivity : Activity() {
         if (sharedPrefs.contains(SHARED_PREFS_DEVICE_ADDRESS)) {
             val cachedDevices = sharedPrefs.getString(SHARED_PREFS_DEVICE_ADDRESS, "")
             Log.d(TAG, String.format("Found device list: %s", cachedDevices))
-            return DeviceCache.deserialize(cachedDevices!!)
+            return DeviceCache(cachedDevices!!).devices()
         }
         return null
     }
@@ -460,8 +460,8 @@ class MainActivity : Activity() {
         Log.d(TAG, "Writing ip list to preferences")
         val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
         val editor = sharedPrefs.edit()
-        val payload = DeviceCache.serialize(deviceList)
-        editor.putString(SHARED_PREFS_DEVICE_ADDRESS, payload)
+        val payload = DeviceCache(deviceList)
+        editor.putString(SHARED_PREFS_DEVICE_ADDRESS, payload.serialize())
         editor.apply()
         Log.d(TAG, String.format("Device list written as %s", payload))
     }

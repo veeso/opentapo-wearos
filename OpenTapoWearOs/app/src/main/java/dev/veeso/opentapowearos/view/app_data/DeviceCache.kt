@@ -4,16 +4,24 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 
-class DeviceCache {
+class DeviceCache(devices: List<String>) {
 
-    companion object {
-        fun serialize(devices: List<String>): String {
-            return Json.encodeToString(devices)
-        }
+    private var devices: MutableList<String>
 
-        fun deserialize(payload: String): List<String> {
-            return Json.decodeFromString(payload)
-        }
+    init {
+        this.devices = devices.toMutableList()
+    }
+
+    constructor(payload: String) : this(listOf()) {
+        this.devices = Json.decodeFromString(payload)
+    }
+
+    fun serialize(): String {
+        return Json.encodeToString(devices)
+    }
+
+    fun devices(): List<String> {
+        return this.devices.toList()
     }
 
 }
