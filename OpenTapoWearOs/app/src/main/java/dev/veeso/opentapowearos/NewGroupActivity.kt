@@ -14,6 +14,7 @@ import dev.veeso.opentapowearos.view.intent_data.NewGroupOutput
 class NewGroupActivity : Activity() {
 
     private var existingGroups: List<String> = listOf()
+    private var deviceIds: List<String> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,9 +25,10 @@ class NewGroupActivity : Activity() {
     override fun onResume() {
         super.onResume()
 
-        val groups = intent.getParcelableExtra<NewGroupInput>(GROUP_INTENT_INPUT)
+        val groups = intent.getParcelableExtra<NewGroupInput>(INTENT_INPUT)
         if (groups != null) {
-            Log.d(TAG, String.format("Found device for groups %s", groups.aliasList))
+            Log.d(TAG, String.format("Found device for groups %s", groups.idList))
+            this.deviceIds = groups.idList
             // set existing groups
             Log.d(TAG, String.format("Existing groups: %s", groups.existingGroups))
             this.existingGroups = groups.existingGroups
@@ -34,7 +36,7 @@ class NewGroupActivity : Activity() {
             val title: TextView = findViewById(R.id.new_group_title)
             title.text = String.format(
                 resources.getString(R.string.new_group_activity_title),
-                groups.aliasList.size
+                groups.idList.size
             )
 
             val groupNameText: EditText = findViewById(R.id.activity_login_password)
@@ -61,7 +63,7 @@ class NewGroupActivity : Activity() {
             setError(R.string.new_group_activity_group_name_error_empty_name)
         } else if (!groupExists(name)) {
             val intent = Intent()
-            intent.putExtra(GROUP_INTENT_OUTPUT, NewGroupOutput(name))
+            intent.putExtra(INTENT_OUTPUT, NewGroupOutput(name, deviceIds))
             setResult(RESULT_OK, intent)
             finish()
         } else {
@@ -82,8 +84,8 @@ class NewGroupActivity : Activity() {
     }
 
     companion object {
-        const val GROUP_INTENT_INPUT = "NewGroupInput"
-        const val GROUP_INTENT_OUTPUT = "NewGroupOutput"
+        const val INTENT_INPUT = "NewGroupInput"
+        const val INTENT_OUTPUT = "NewGroupOutput"
         const val TAG = "NewGroupActivity"
     }
 }

@@ -65,13 +65,47 @@
             android:visibility="visible" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/activity_main_device_list"
+    <LinearLayout
+        android:id="@+id/activity_main_lists"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="32dp"
         android:paddingVertical="32dp"
-        app:layoutManager="LinearLayoutManager" />
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/main_activity_groups"
+            android:textSize="14sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activity_main_group_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="LinearLayoutManager" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/main_activity_devices"
+            android:textSize="14sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/activity_main_device_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="32dp"
+            app:layoutManager="LinearLayoutManager" />
+    </LinearLayout>
 
 
     <LinearLayout
@@ -89,9 +123,20 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="#00FFFFFF"
-            android:contentDescription="@string/reload_device_list"
+            android:contentDescription="@string/main_activity_reload_devices"
             android:src="@android:drawable/ic_popup_sync"
             android:tooltipText="@string/main_activity_reload_devices"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/activity_main_new_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#00FFFFFF"
+            android:contentDescription="@string/main_activity_new_group"
+            android:src="@android:drawable/ic_input_add"
+            android:tooltipText="@string/main_activity_new_group"
             android:visibility="gone" />
 
     </LinearLayout>

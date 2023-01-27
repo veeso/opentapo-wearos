@@ -13,6 +13,8 @@ class DeviceGroups {
         this.groups = mutableMapOf()
     }
 
+    constructor()
+
     constructor(payload: String) {
         this.groups = Json.decodeFromString(payload)
     }

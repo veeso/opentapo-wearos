@@ -5,10 +5,13 @@
     values-round/strings.xml for round devices.
     -->
     <string name="main_activity_title">Tapo Devices</string>
+    <string name="main_activity_devices">Devices</string>
+    <string name="main_activity_groups">Device Groups</string>
     <string name="main_activity_loading">Searching for Tapo devices…</string>
     <string name="main_activity_not_found">Could not find any Tapo device</string>
     <string name="main_activity_no_network">Could not connect to local WiFi network</string>
     <string name="main_activity_reload_devices">Reload device list</string>
+    <string name="main_activity_new_group">Create new group</string>
     <string name="login_activity_email">Email Address</string>
     <string name="login_activity_email_input">enter email</string>
     <string name="login_activity_password">Password</string>

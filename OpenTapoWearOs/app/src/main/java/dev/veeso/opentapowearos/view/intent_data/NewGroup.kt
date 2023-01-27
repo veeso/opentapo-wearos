@@ -4,17 +4,17 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class NewGroupInput(
-    val aliasList: List<String>,
+    val idList: List<String>,
     val existingGroups: List<String>,
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        aliasList = parcel.readSerializable()!! as List<String>,
+        idList = parcel.readSerializable()!! as List<String>,
         existingGroups = parcel.readSerializable()!! as List<String>
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeSerializable(aliasList as java.io.Serializable)
+        parcel.writeSerializable(idList as java.io.Serializable)
         parcel.writeSerializable(existingGroups as java.io.Serializable)
     }
 
@@ -35,15 +35,18 @@ class NewGroupInput(
 }
 
 class NewGroupOutput(
-    val groupName: String
+    val groupName: String,
+    val idList: List<String>,
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        groupName = parcel.readString()!!
+        groupName = parcel.readString()!!,
+        idList = parcel.readSerializable()!! as List<String>
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(groupName)
+        parcel.writeSerializable(idList as java.io.Serializable)
     }
 
     override fun describeContents(): Int {

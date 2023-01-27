@@ -10,10 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.DeviceActivity
 import dev.veeso.opentapowearos.R
 import dev.veeso.opentapowearos.tapo.device.Device
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
+@OptIn(DelicateCoroutinesApi::class)
 internal class DeviceListAdapter(private val devices: List<Device>) :
     RecyclerView.Adapter<DeviceListAdapter.ViewHolder>() {
 
@@ -57,7 +56,7 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
     }
 
     private fun setPowerState(device: Device, powerState: Boolean) {
-        runBlocking {
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 if (powerState) {
                     device.on()
