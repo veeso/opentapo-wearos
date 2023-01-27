@@ -255,75 +255,40 @@ class MainActivity : Activity() {
     }
 
     private fun enterDeviceListState() {
-        runOnUiThread {
-            Log.d(TAG, "Entering no device found state")
-            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
-            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
-            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
-
-            messageBox.visibility = View.GONE
-            deviceList.visibility = View.VISIBLE
-            reloadIcon.visibility = View.VISIBLE
-
-            populateDeviceList()
-        }
+        Log.d(TAG, "Entering no device found state")
+        toggleDeviceList(visible = true)
+        toggleReloadIcon(visible = true)
+        toggleMessageBox(visible = false)
+        toggleLoading(loading = false)
+        toggleAlert(visible = false)
     }
 
     private fun enterLoadingDeviceListState() {
-        runOnUiThread {
-            Log.d(TAG, "Entering no device found state")
-            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
-            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
-            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
-            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-            val message: TextView = findViewById(R.id.activity_main_message)
-
-            deviceList.visibility = View.GONE
-            messageBox.visibility = View.VISIBLE
-            reloadIcon.visibility = View.GONE
-            alertIcon.visibility = View.GONE
-            progress.visibility = View.VISIBLE
-            message.text = resources.getString(R.string.main_activity_loading)
-        }
+        Log.d(TAG, "Entering no device found state")
+        toggleDeviceList(visible = false)
+        toggleReloadIcon(visible = false)
+        toggleMessageBox(visible = true)
+        toggleLoading(loading = true)
+        toggleAlert(visible = false)
     }
 
     private fun enterNoDeviceFoundState() {
-        runOnUiThread {
-            Log.d(TAG, "Entering no device found state")
-            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
-            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
-            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
-            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-            val message: TextView = findViewById(R.id.activity_main_message)
-
-            deviceList.visibility = View.GONE
-            messageBox.visibility = View.VISIBLE
-            reloadIcon.visibility = View.GONE
-            alertIcon.visibility = View.VISIBLE
-            progress.visibility = View.GONE
-            message.text = resources.getString(R.string.main_activity_not_found)
-        }
+        Log.d(TAG, "Entering no device found state")
+        toggleDeviceList(visible = false)
+        toggleReloadIcon(visible = true)
+        toggleMessageBox(visible = true)
+        toggleLoading(loading = false)
+        toggleAlert(visible = true, R.string.main_activity_not_found)
     }
 
     private fun enterNoLinkState() {
-        runOnUiThread {
-            Log.d(TAG, "Entering no link state")
-            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
-            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
-            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
-            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-            val message: TextView = findViewById(R.id.activity_main_message)
+        Log.d(TAG, "Entering no link state")
+        toggleDeviceList(visible = false)
+        toggleReloadIcon(visible = true)
+        toggleMessageBox(visible = true)
+        toggleLoading(loading = false)
+        toggleAlert(visible = true, R.string.main_activity_no_network)
 
-            deviceList.visibility = View.GONE
-            messageBox.visibility = View.VISIBLE
-            reloadIcon.visibility = View.GONE
-            alertIcon.visibility = View.VISIBLE
-            progress.visibility = View.GONE
-            message.text = resources.getString(R.string.main_activity_no_network)
-        }
     }
 
     private fun populateDeviceList() {
@@ -346,6 +311,78 @@ class MainActivity : Activity() {
                 )
                 intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
                 startActivity(intent)
+            }
+        }
+    }
+
+    private fun toggleDeviceList(visible: Boolean) {
+        runOnUiThread {
+            Log.d(TAG, "Entering no device found state")
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+
+            if (visible) {
+                deviceList.visibility = View.VISIBLE
+                populateDeviceList()
+            } else {
+                deviceList.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun toggleMessageBox(visible: Boolean) {
+        runOnUiThread {
+            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            if (visible) {
+                messageBox.visibility = View.VISIBLE
+            } else {
+                messageBox.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun toggleLoading(loading: Boolean) {
+        runOnUiThread {
+            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+            val message: TextView = findViewById(R.id.activity_main_message)
+
+            if (loading) {
+                alertIcon.visibility = View.GONE
+                progress.visibility = View.VISIBLE
+                message.visibility = View.VISIBLE
+                message.text = resources.getString(R.string.main_activity_loading)
+            } else {
+                progress.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun toggleAlert(visible: Boolean, message: Int? = null) {
+        runOnUiThread {
+            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+
+            if (visible) {
+                alertIcon.visibility = View.VISIBLE
+                val messageView: TextView = findViewById(R.id.activity_main_message)
+                if (message != null) {
+                    messageView.visibility = View.VISIBLE
+                    messageView.text = resources.getString(message)
+                } else {
+                    messageView.visibility = View.GONE
+                }
+            } else {
+                alertIcon.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun toggleReloadIcon(visible: Boolean) {
+        runOnUiThread {
+            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
+            if (visible) {
+                reloadIcon.visibility = View.VISIBLE
+            } else {
+                reloadIcon.visibility = View.GONE
             }
         }
     }
