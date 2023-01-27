@@ -1,4 +1,4 @@
-package dev.veeso.opentapowearos.view
+package dev.veeso.opentapowearos.view.intent_data
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString

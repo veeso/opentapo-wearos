@@ -1,4 +1,4 @@
-package dev.veeso.opentapowearos.view
+package dev.veeso.opentapowearos.view.intent_data
 
 import android.os.Parcel
 import android.os.Parcelable

@@ -3,7 +3,7 @@ package dev.veeso.opentapowearos.tapo.device
 import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetLightBulbDeviceInfoParams
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetRgbLightBulbDeviceInfoParams
-import dev.veeso.opentapowearos.view.Color
+import dev.veeso.opentapowearos.view.device_activity.Color
 
 class L530(
     deviceAlias: String,

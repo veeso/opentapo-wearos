@@ -1,4 +1,4 @@
-package dev.veeso.opentapowearos.view
+package dev.veeso.opentapowearos.view.login_activity
 
 enum class LoginActivityState {
     LOGIN_FORM,

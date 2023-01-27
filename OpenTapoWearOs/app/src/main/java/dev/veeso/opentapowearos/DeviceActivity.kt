@@ -6,10 +6,10 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import dev.veeso.opentapowearos.tapo.device.*
-import dev.veeso.opentapowearos.view.Color
-import dev.veeso.opentapowearos.view.Color.Companion.COLOR_LIST
-import dev.veeso.opentapowearos.view.Credentials
-import dev.veeso.opentapowearos.view.DeviceData
+import dev.veeso.opentapowearos.view.device_activity.Color
+import dev.veeso.opentapowearos.view.device_activity.Color.Companion.COLOR_LIST
+import dev.veeso.opentapowearos.view.intent_data.Credentials
+import dev.veeso.opentapowearos.view.intent_data.DeviceData
 import kotlinx.coroutines.*
 
 

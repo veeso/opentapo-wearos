@@ -1,4 +1,4 @@
-package dev.veeso.opentapowearos.view
+package dev.veeso.opentapowearos.view.main_activity
 
 import android.util.Log
 import android.view.LayoutInflater

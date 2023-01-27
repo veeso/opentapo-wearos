@@ -12,8 +12,8 @@ import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
-import dev.veeso.opentapowearos.view.Credentials
-import dev.veeso.opentapowearos.view.LoginActivityState
+import dev.veeso.opentapowearos.view.intent_data.Credentials
+import dev.veeso.opentapowearos.view.login_activity.LoginActivityState
 import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)
