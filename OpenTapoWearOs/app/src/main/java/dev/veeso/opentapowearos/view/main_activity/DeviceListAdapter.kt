@@ -17,6 +17,7 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
     RecyclerView.Adapter<DeviceListAdapter.ViewHolder>() {
 
     var onItemClick: ((Device) -> Unit)? = null
+    var onItemLongClick: ((Device) -> Unit)? = null
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val deviceAliasText: TextView = view.findViewById(R.id.device_list_item_alias)
@@ -26,6 +27,10 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
         init {
             itemView.setOnClickListener {
                 onItemClick?.invoke(devices[bindingAdapterPosition])
+            }
+            itemView.setOnLongClickListener {
+                onItemLongClick?.invoke(devices[bindingAdapterPosition])
+                true
             }
         }
     }

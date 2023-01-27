@@ -46,8 +46,9 @@ class MainActivity : Activity() {
     // network
     private var deviceNetwork: Pair<String, String>? = null
 
-    // state
+    // states
     private var state: ActivityState = ActivityState.LOADING_DEVICE_LIST
+    private var selectedDevices: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +61,8 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
+
+        setActivityState(ActivityState.LOADING_DEVICE_LIST)
 
         // get groups
         this.getDeviceGroups()
@@ -127,6 +130,7 @@ class MainActivity : Activity() {
     }
 
     private fun onReloadDeviceList() {
+        Log.d(TAG, "onReloadDeviceList")
         deleteCachedDeviceAddressList()
         setActivityState(ActivityState.LOADING_DEVICE_LIST)
         GlobalScope.launch {
@@ -137,8 +141,9 @@ class MainActivity : Activity() {
     }
 
     private fun onCreateNewGroup() {
+        Log.d(TAG, "onCreateNewGroup")
         val newGroupIntent = Intent(this, NewGroupActivity::class.java)
-        val devicesInGroup = TODO()
+        val devicesInGroup = this.selectedDevices.toList()
         Log.d(
             TAG,
             String.format("Starting new group activity with devices in group: %s", devicesInGroup)
@@ -149,7 +154,7 @@ class MainActivity : Activity() {
                 this.deviceGroups.getNames()
             )
         )
-        TODO("DESELECT DEVICES")
+        this.selectedDevices.clear()
         startActivityForResult(newGroupIntent, 1)
     }
 
@@ -362,35 +367,51 @@ class MainActivity : Activity() {
                 intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
                 startActivity(intent)
             }
+            devicesAdapter.onItemLongClick = {
+                Log.d(TAG, String.format("onItemLongClick for %s", it.alias))
+                if (this.selectedDevices.contains(it.id)) {
+                    this.selectedDevices.remove(it.id)
+                } else {
+                    this.selectedDevices.add(it.id)
+                }
+            }
         }
     }
 
     private fun populateGroupsList() {
         runOnUiThread {
             val groupsList: RecyclerView = findViewById(R.id.activity_main_group_list)
-            val groupsAdapter = GroupListAdapter(
-                this.deviceGroups.getNames().map { name ->
-                    val deviceIds = this.deviceGroups.getDevices(name)
-                    val devices = this.devices.filter { device ->
-                        deviceIds.contains(device.id)
+            val groupsLabel: TextView = findViewById(R.id.activity_main_group_list_label)
+            if (this.deviceGroups.getNames().isEmpty()) {
+                groupsList.visibility = View.GONE
+                groupsLabel.visibility = View.GONE
+            } else {
+                groupsLabel.visibility = View.VISIBLE
+                groupsList.visibility = View.VISIBLE
+                val groupsAdapter = GroupListAdapter(
+                    this.deviceGroups.getNames().map { name ->
+                        val deviceIds = this.deviceGroups.getDevices(name)
+                        val devices = this.devices.filter { device ->
+                            deviceIds.contains(device.id)
+                        }
+                        Pair(name, devices)
                     }
-                    Pair(name, devices)
-                }
-            )
-            groupsList.adapter = groupsAdapter
-            groupsList.layoutManager = LinearLayoutManager(this)
-
-            groupsAdapter.onItemClick = {
-                Log.d(
-                    TAG,
-                    String.format("Clicked on group %s; starting GroupManagementActivity", it)
                 )
-                val devices: List<Device> = this.deviceGroups.getDevices(it).mapNotNull { id ->
-                    this.devices.find { device ->
-                        device.id == id
+                groupsList.adapter = groupsAdapter
+                groupsList.layoutManager = LinearLayoutManager(this)
+
+                groupsAdapter.onItemClick = {
+                    Log.d(
+                        TAG,
+                        String.format("Clicked on group %s; starting GroupManagementActivity", it)
+                    )
+                    val devices: List<Device> = this.deviceGroups.getDevices(it).mapNotNull { id ->
+                        this.devices.find { device ->
+                            device.id == id
+                        }
                     }
+                    TODO("start activity")
                 }
-                TODO("start activity")
             }
         }
     }
@@ -496,7 +517,7 @@ class MainActivity : Activity() {
                     netmask
                 )
             )
-            // return Pair("192.168.178.23", "255.255.255.0")
+            return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostAddress!!, netmask)
         }
 

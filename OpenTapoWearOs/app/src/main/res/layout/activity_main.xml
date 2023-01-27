@@ -71,10 +71,12 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="32dp"
         android:paddingVertical="32dp"
+        android:visibility="gone"
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/activity_main_group_list_label"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/main_activity_groups"
@@ -92,7 +94,7 @@
             android:background="?android:attr/listDivider" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/main_activity_devices"
@@ -102,8 +104,6 @@
             android:id="@+id/activity_main_device_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingHorizontal="32dp"
-            android:paddingVertical="32dp"
             app:layoutManager="LinearLayoutManager" />
     </LinearLayout>
 

@@ -39,7 +39,7 @@ class NewGroupActivity : Activity() {
                 groups.idList.size
             )
 
-            val groupNameText: EditText = findViewById(R.id.activity_login_password)
+            val groupNameText: EditText = findViewById(R.id.new_group_group_name_input)
             groupNameText.setOnEditorActionListener { v, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     onGroupNameDone(v as EditText)
