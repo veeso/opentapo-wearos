@@ -21,6 +21,7 @@ import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.view.intent_data.Credentials
 import dev.veeso.opentapowearos.view.intent_data.DeviceCache
 import dev.veeso.opentapowearos.view.intent_data.DeviceData
+import dev.veeso.opentapowearos.view.main_activity.ActivityState
 import dev.veeso.opentapowearos.view.main_activity.DeviceListAdapter
 import kotlinx.coroutines.*
 import java.net.Inet4Address
@@ -38,6 +39,9 @@ class MainActivity : Activity() {
 
     // network
     private var deviceNetwork: Pair<String, String>? = null
+
+    // state
+    private var state: ActivityState = ActivityState.LOADING_DEVICE_LIST
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,7 +99,7 @@ class MainActivity : Activity() {
 
     private fun onReloadDeviceList() {
         deleteCachedDeviceAddressList()
-        setMessageBox(visible = true, searching = true)
+        setActivityState(ActivityState.LOADING_DEVICE_LIST)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 discoverDevices()
@@ -114,7 +118,7 @@ class MainActivity : Activity() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.e(TAG, String.format("Failed to discover devices: %s", e))
-                setMessageBox(visible = true, searching = false)
+                setActivityState(ActivityState.NO_DEVICE_FOUND)
             }
         } else {
             Log.d(
@@ -153,7 +157,11 @@ class MainActivity : Activity() {
                         )
                     }
                 }
-                populateDeviceList()
+                if (devices.isNotEmpty()) {
+                    setActivityState(ActivityState.DEVICE_LIST)
+                } else {
+                    setActivityState(ActivityState.NO_DEVICE_FOUND)
+                }
             }
         }
     }
@@ -168,7 +176,8 @@ class MainActivity : Activity() {
 
     private fun discoverDevices() {
 
-        val connectivityManager: ConnectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager: ConnectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
@@ -180,7 +189,11 @@ class MainActivity : Activity() {
                     withContext(Dispatchers.IO) {
                         devices.clear()
                         discoverDevicesOnLocalNetwork()
-                        populateDeviceList()
+                        if (devices.isNotEmpty()) {
+                            setActivityState(ActivityState.DEVICE_LIST)
+                        } else {
+                            setActivityState(ActivityState.NO_DEVICE_FOUND)
+                        }
                         // reload device state
                         reloadDeviceState()
                     }
@@ -216,7 +229,7 @@ class MainActivity : Activity() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.e(TAG, String.format("Failed to get device network address: %s", e))
-                setMessageBox(visible = false, searching = false, R.string.main_activity_no_network)
+                setActivityState(ActivityState.NO_LINK)
                 return
             }
         }
@@ -229,61 +242,110 @@ class MainActivity : Activity() {
         setCachedDeviceAddressList(devices.map { it.ipAddress })
     }
 
-    private fun populateDeviceList() {
-        runOnUiThread {
-            if (devices.isEmpty()) {
-                setMessageBox(visible = true, searching = false)
-            } else {
-                setMessageBox(visible = false, searching = false)
-                val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
-                val devicesAdapter = DeviceListAdapter(devices)
-                deviceList.adapter = devicesAdapter
-                deviceList.layoutManager = LinearLayoutManager(this)
+    // device states
 
-                devicesAdapter.onItemClick = {
-                    Log.d(
-                        TAG,
-                        String.format("Clicked on device %s; starting DeviceActivity", it.alias)
-                    )
-                    val intent = Intent(this, DeviceActivity::class.java)
-                    intent.putExtra(
-                        DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
-                            it.alias, it.id, it.model, it.endpoint, it.ipAddress, it.status
-                        )
-                    )
-                    intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
-                    startActivity(intent)
-                }
-            }
+    private fun setActivityState(state: ActivityState) {
+        this.state = state
+        when (this.state) {
+            ActivityState.DEVICE_LIST -> enterDeviceListState()
+            ActivityState.LOADING_DEVICE_LIST -> enterLoadingDeviceListState()
+            ActivityState.NO_DEVICE_FOUND -> enterNoDeviceFoundState()
+            ActivityState.NO_LINK -> enterNoLinkState()
         }
     }
 
-    private fun setMessageBox(visible: Boolean, searching: Boolean, messageId: Int = R.string.main_activity_not_found) {
+    private fun enterDeviceListState() {
         runOnUiThread {
+            Log.d(TAG, "Entering no device found state")
             val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
             val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
             val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
-            if (visible) {
-                deviceList.visibility = View.GONE
-                messageBox.visibility = View.VISIBLE
-                reloadIcon.visibility = View.GONE
-                if (searching) {
-                    val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-                    progress.visibility = View.VISIBLE
-                    val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-                    alertIcon.visibility = View.GONE
-                } else {
-                    val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
-                    alertIcon.visibility = View.VISIBLE
-                    val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
-                    progress.visibility = View.GONE
-                    val message: TextView = findViewById(R.id.activity_main_message)
-                    message.text = resources.getString(messageId)
-                }
-            } else {
-                messageBox.visibility = View.GONE
-                deviceList.visibility = View.VISIBLE
-                reloadIcon.visibility = View.VISIBLE
+
+            messageBox.visibility = View.GONE
+            deviceList.visibility = View.VISIBLE
+            reloadIcon.visibility = View.VISIBLE
+
+            populateDeviceList()
+        }
+    }
+
+    private fun enterLoadingDeviceListState() {
+        runOnUiThread {
+            Log.d(TAG, "Entering no device found state")
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
+            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+            val message: TextView = findViewById(R.id.activity_main_message)
+
+            deviceList.visibility = View.GONE
+            messageBox.visibility = View.VISIBLE
+            reloadIcon.visibility = View.GONE
+            alertIcon.visibility = View.GONE
+            progress.visibility = View.VISIBLE
+            message.text = resources.getString(R.string.main_activity_loading)
+        }
+    }
+
+    private fun enterNoDeviceFoundState() {
+        runOnUiThread {
+            Log.d(TAG, "Entering no device found state")
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
+            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+            val message: TextView = findViewById(R.id.activity_main_message)
+
+            deviceList.visibility = View.GONE
+            messageBox.visibility = View.VISIBLE
+            reloadIcon.visibility = View.GONE
+            alertIcon.visibility = View.VISIBLE
+            progress.visibility = View.GONE
+            message.text = resources.getString(R.string.main_activity_not_found)
+        }
+    }
+
+    private fun enterNoLinkState() {
+        runOnUiThread {
+            Log.d(TAG, "Entering no link state")
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+            val messageBox: LinearLayout = findViewById(R.id.activity_main_message_box)
+            val reloadIcon: ImageView = findViewById(R.id.activity_main_reload)
+            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+            val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
+            val message: TextView = findViewById(R.id.activity_main_message)
+
+            deviceList.visibility = View.GONE
+            messageBox.visibility = View.VISIBLE
+            reloadIcon.visibility = View.GONE
+            alertIcon.visibility = View.VISIBLE
+            progress.visibility = View.GONE
+            message.text = resources.getString(R.string.main_activity_no_network)
+        }
+    }
+
+    private fun populateDeviceList() {
+        runOnUiThread {
+            val deviceList: RecyclerView = findViewById(R.id.activity_main_device_list)
+            val devicesAdapter = DeviceListAdapter(devices)
+            deviceList.adapter = devicesAdapter
+            deviceList.layoutManager = LinearLayoutManager(this)
+
+            devicesAdapter.onItemClick = {
+                Log.d(
+                    TAG,
+                    String.format("Clicked on device %s; starting DeviceActivity", it.alias)
+                )
+                val intent = Intent(this, DeviceActivity::class.java)
+                intent.putExtra(
+                    DeviceActivity.DEVICE_DATA_INTENT_NAME, DeviceData(
+                        it.alias, it.id, it.model, it.endpoint, it.ipAddress, it.status
+                    )
+                )
+                intent.putExtra(DeviceActivity.CREDENTIALS_INTENT_NAME, credentials)
+                startActivity(intent)
             }
         }
     }

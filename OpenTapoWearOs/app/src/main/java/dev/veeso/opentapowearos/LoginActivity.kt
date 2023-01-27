@@ -13,7 +13,7 @@ import android.widget.Switch
 import android.widget.TextView
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.view.intent_data.Credentials
-import dev.veeso.opentapowearos.view.login_activity.LoginActivityState
+import dev.veeso.opentapowearos.view.login_activity.ActivityState
 import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -115,7 +115,7 @@ class LoginActivity : Activity() {
     }
 
     private fun doSignIn(username: String, password: String, savePassword: Boolean) {
-        setViewState(LoginActivityState.SIGNING_IN)
+        setViewState(ActivityState.SIGNING_IN)
         val intent = Intent()
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
@@ -125,13 +125,13 @@ class LoginActivity : Activity() {
                     saveCredentialsToPrefs(username, password, savePassword)
                     // return to main activity
                     intent.putExtra(INTENT_OUTPUT, credentials)
-                    setViewState(LoginActivityState.LOGIN_FORM)
+                    setViewState(ActivityState.LOGIN_FORM)
                     setResult(RESULT_OK, intent)
                     finish()
                 } catch (e: Exception) {
                     Log.d(TAG, String.format("Login failed: %s", e))
                     setError(getString(R.string.activity_login_signin_error))
-                    setViewState(LoginActivityState.LOGIN_FORM)
+                    setViewState(ActivityState.LOGIN_FORM)
                 }
             }
         }
@@ -144,11 +144,11 @@ class LoginActivity : Activity() {
         return Credentials(username, password)
     }
 
-    private fun setViewState(state: LoginActivityState) {
+    private fun setViewState(state: ActivityState) {
         Log.d(TAG, String.format("Entering new view state: %s", state))
         when (state) {
-            LoginActivityState.LOGIN_FORM -> enterLoginForm()
-            LoginActivityState.SIGNING_IN -> enterSigningIn()
+            ActivityState.LOGIN_FORM -> enterLoginForm()
+            ActivityState.SIGNING_IN -> enterSigningIn()
         }
     }
 
