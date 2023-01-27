@@ -19,7 +19,7 @@ import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.tapo.device.Device
 import dev.veeso.opentapowearos.view.intent_data.Credentials
-import dev.veeso.opentapowearos.view.intent_data.DeviceCache
+import dev.veeso.opentapowearos.view.app_data.DeviceCache
 import dev.veeso.opentapowearos.view.intent_data.DeviceData
 import dev.veeso.opentapowearos.view.main_activity.ActivityState
 import dev.veeso.opentapowearos.view.main_activity.DeviceListAdapter
