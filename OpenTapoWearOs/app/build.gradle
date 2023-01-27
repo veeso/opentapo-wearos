@@ -16,8 +16,8 @@ android {
         applicationId "dev.veeso.opentapowearos"
         minSdk 30
         targetSdk 32
-        versionCode 4
-        versionName "0.1.0"
+        versionCode 20
+        versionName "0.2.0"
 
     }
 
