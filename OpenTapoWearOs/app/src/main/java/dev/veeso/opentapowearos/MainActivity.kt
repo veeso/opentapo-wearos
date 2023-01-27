@@ -380,7 +380,7 @@ class MainActivity : Activity() {
         const val TAG = "MainActivity"
         const val SHARED_PREFS = "OpenTapoWearOs"
         const val SHARED_PREFS_USERNAME = "username"
-        const val SHARED_PREFS_PASSWORD = "password+test"
+        const val SHARED_PREFS_PASSWORD = "password"
         const val SHARED_PREFS_DEVICE_ADDRESS = "deviceAddressList"
     }
 
