@@ -1,5 +1,6 @@
 package dev.veeso.opentapowearos
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -257,6 +258,61 @@ class MainActivity : Activity() {
     }
 
     private fun discoverDevices() {
+        Log.d(TAG, "discoverDevices")
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                devices.clear()
+                // check what kind of scan we need to make
+                val cachedDeviceList = getCachedDeviceAddressList()
+                if (cachedDeviceList == null || cachedDeviceList.isEmpty() && deviceNetwork == null) {
+                    // do scan with wifi
+                    discoverDevicesOnLocalNetworkWithWifi()
+                } else {
+                    discoverDevicesOnLocalNetwork()
+                }
+            }
+        }
+    }
+
+    private fun discoverDevicesOnLocalNetwork() {
+        Log.d(TAG, "discoverDevicesOnLocalNetwork")
+        val cachedDeviceList = getCachedDeviceAddressList()
+        this.devices = if (cachedDeviceList != null && cachedDeviceList.isNotEmpty()) {
+            Log.d(TAG, String.format("Found %d cached devices for scanner", cachedDeviceList.size))
+            Log.d(TAG, "Running ip discovery service")
+            val scanner = DeviceScanner(
+                credentials!!.username,
+                credentials!!.password,
+                cachedDeviceList
+            )
+            scanner.scanNetwork()
+            scanner.devices
+        } else {
+            Log.d(TAG, "Getting local address")
+            Log.d(TAG, "Running ip discovery service")
+            val scanner = DeviceScanner(
+                credentials!!.username,
+                credentials!!.password
+            )
+            scanner.scanNetwork(deviceNetwork!!.first, deviceNetwork!!.second)
+            scanner.devices
+        }
+        Log.d(TAG, String.format("Found %d devices", this.devices.size))
+        // cache devices
+        setCachedDeviceAddressList(devices.map { it.ipAddress })
+        // set activity state
+        if (devices.isNotEmpty()) {
+            setActivityState(ActivityState.DEVICE_LIST)
+        } else {
+            setActivityState(ActivityState.NO_DEVICE_FOUND)
+        }
+        // reload device state
+        reloadDeviceState()
+    }
+
+    private fun discoverDevicesOnLocalNetworkWithWifi() {
+
+        Log.d(TAG, "discoverDevicesOnLocalNetworkWithWifi")
 
         val connectivityManager: ConnectivityManager =
             getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -265,66 +321,51 @@ class MainActivity : Activity() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
                 Log.d(TAG, "Wifi available")
-                // The Wi-Fi network has been acquired, bind it to use this network by default
-                connectivityManager.bindProcessToNetwork(network)
-                GlobalScope.launch {
-                    withContext(Dispatchers.IO) {
-                        devices.clear()
-                        discoverDevicesOnLocalNetwork()
-                        if (devices.isNotEmpty()) {
-                            setActivityState(ActivityState.DEVICE_LIST)
-                        } else {
-                            setActivityState(ActivityState.NO_DEVICE_FOUND)
-                        }
-                        // reload device state
-                        reloadDeviceState()
-                    }
-                }
-            }
 
+                try {
+                    deviceNetwork = getDeviceNetworkAddresses()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Log.e(TAG, String.format("Failed to get device network address: %s", e))
+                    setActivityState(ActivityState.NO_LINK)
+                    return
+                }
+                discoverDevicesOnLocalNetwork()
+            }
         }
+
         connectivityManager.requestNetwork(
             NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI).build(),
             callback
         )
     }
 
-    private fun discoverDevicesOnLocalNetwork() {
-        val cachedDeviceList = getCachedDeviceAddressList()
-        val deviceScanner = if (cachedDeviceList != null && cachedDeviceList.isNotEmpty()) {
-            Log.d(TAG, String.format("Found %d cached devices for scanner", cachedDeviceList.size))
-            DeviceScanner(
-                credentials!!.username,
-                credentials!!.password,
-                cachedDeviceList
+    private fun getDeviceNetworkAddresses(): Pair<String, String> {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
+
+        if (connectivityManager is ConnectivityManager) {
+            val networks =
+                connectivityManager.allNetworks.map { (connectivityManager.getLinkProperties(it) as LinkProperties) }
+            val link: LinkProperties = networks[networks.size - 1]
+            Log.d(TAG, link.linkAddresses.toString())
+            val ipAddress = link.linkAddresses[1].address as Inet4Address
+            val netmask = NetworkUtils.cidrToNetmask(link.linkAddresses[1].prefixLength)
+            Log.d(
+                TAG,
+                String.format(
+                    "Found local device address %s and netmask %s",
+                    ipAddress.hostAddress,
+                    netmask
+                )
             )
-        } else {
-            DeviceScanner(
-                credentials!!.username,
-                credentials!!.password
-            )
+            // return Pair("192.168.178.23", "255.255.255.0")
+            return Pair(ipAddress.hostAddress!!, netmask)
         }
-        Log.d(TAG, "Getting local address")
-        if (deviceNetwork == null) {
-            try {
-                this.deviceNetwork = getDeviceNetworkAddresses()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e(TAG, String.format("Failed to get device network address: %s", e))
-                setActivityState(ActivityState.NO_LINK)
-                return
-            }
-        }
-        deviceScanner.scanNetwork(deviceNetwork!!.first, deviceNetwork!!.second)
-        Log.d(TAG, "Running ip discovery service")
-        // assign devices
-        this.devices = deviceScanner.devices
-        Log.d(TAG, String.format("Found %d devices", this.devices.size))
-        // cache devices
-        setCachedDeviceAddressList(devices.map { it.ipAddress })
+
+        throw Exception("No link")
     }
 
-    // device states
+// device states
 
     private fun setActivityState(state: ActivityState) {
         this.state = state
@@ -578,30 +619,6 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun getDeviceNetworkAddresses(): Pair<String, String> {
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE)
-        if (connectivityManager is ConnectivityManager) {
-            val networks =
-                connectivityManager.allNetworks.map { (connectivityManager.getLinkProperties(it) as LinkProperties) }
-            val link: LinkProperties = networks[networks.size - 1]
-            Log.d(TAG, link.linkAddresses.toString())
-            val ipAddress = link.linkAddresses[1].address as Inet4Address
-            val netmask = NetworkUtils.cidrToNetmask(link.linkAddresses[1].prefixLength)
-            Log.d(
-                TAG,
-                String.format(
-                    "Found local device address %s and netmask %s",
-                    ipAddress.hostAddress,
-                    netmask
-                )
-            )
-            // return Pair("192.168.178.23", "255.255.255.0")
-            return Pair(ipAddress.hostAddress!!, netmask)
-        }
-
-        throw Exception("No link")
-    }
-
     private fun readCredentialsFromPrefs() {
         Log.d(TAG, "Trying to retrieve credentials from shared preferences")
         val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -657,6 +674,7 @@ class MainActivity : Activity() {
         Log.d(TAG, String.format("Device list written as %s", payload))
     }
 
+    @SuppressLint("ApplySharedPref")
     private fun deleteCachedDeviceAddressList() {
         Log.d(TAG, "Deleting ip list from preferences")
         val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
@@ -665,8 +683,6 @@ class MainActivity : Activity() {
         editor.commit()
         Log.d(TAG, "Device address cleared")
     }
-
-    // device groups
 
     private fun getDeviceGroups() {
         Log.d(TAG, "Trying to retrieve device groups from shared preferences")
