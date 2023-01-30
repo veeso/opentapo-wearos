@@ -37,7 +37,7 @@ class DeviceGroups {
     }
 
     fun getNames(): List<String> {
-        return groups.keys.toList()
+        return groups.keys.toList().sorted()
     }
 
     fun getDevices(name: String): List<String> {

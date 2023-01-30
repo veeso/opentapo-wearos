@@ -128,6 +128,8 @@ class MainActivity : Activity() {
         this.deviceGroups.add(newGroup.groupName, newGroup.idList)
         // save changes
         commitDeviceGroups()
+        populateGroupsList()
+        toggleNewGroupIcon(visible = false)
     }
 
     private fun onReloadDeviceList() {
@@ -310,7 +312,7 @@ class MainActivity : Activity() {
         Log.d(TAG, "Entering device list state")
         toggleLists(visible = true)
         toggleReloadIcon(visible = true)
-        toggleNewGroupIcon(visible = true)
+        toggleNewGroupIcon(visible = false)
         toggleMessageBox(visible = false)
         toggleLoading(loading = false)
         toggleAlert(visible = false)
@@ -372,8 +374,12 @@ class MainActivity : Activity() {
                 Log.d(TAG, String.format("onItemLongClick for %s", it.alias))
                 if (this.selectedDevices.contains(it.id)) {
                     this.selectedDevices.remove(it.id)
+                    if (this.selectedDevices.isEmpty()) {
+                        this.toggleNewGroupIcon(visible = false)
+                    }
                 } else {
                     this.selectedDevices.add(it.id)
+                    this.toggleNewGroupIcon(visible = true)
                 }
             }
         }
