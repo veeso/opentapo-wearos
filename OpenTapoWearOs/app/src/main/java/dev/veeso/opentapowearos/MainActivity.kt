@@ -595,7 +595,7 @@ class MainActivity : Activity() {
                     netmask
                 )
             )
-            return Pair("192.168.178.23", "255.255.255.0")
+            // return Pair("192.168.178.23", "255.255.255.0")
             return Pair(ipAddress.hostAddress!!, netmask)
         }
 

@@ -77,10 +77,17 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
     private fun setPowerState(device: Device, powerState: Boolean) {
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                if (powerState) {
-                    device.on()
-                } else {
-                    device.off()
+                try {
+                    if (powerState) {
+                        device.on()
+                    } else {
+                        device.off()
+                    }
+                } catch (e: Exception) {
+                    Log.d(
+                        TAG,
+                        String.format("Failed to set power state for %s: %s", device.alias, e)
+                    )
                 }
             }
         }

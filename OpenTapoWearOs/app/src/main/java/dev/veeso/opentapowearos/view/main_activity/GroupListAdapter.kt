@@ -90,10 +90,17 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
                             powerState
                         )
                     )
-                    if (powerState) {
-                        it.on()
-                    } else {
-                        it.off()
+                    try {
+                        if (powerState) {
+                            it.on()
+                        } else {
+                            it.off()
+                        }
+                    } catch (e: Exception) {
+                        Log.d(
+                            TAG,
+                            String.format("Failed to set power for device %s: %s", it.alias, e)
+                        )
                     }
                 }
             }
