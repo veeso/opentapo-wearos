@@ -116,7 +116,7 @@
         android:gravity="center_horizontal|bottom"
         android:orientation="horizontal"
         android:paddingTop="16dp"
-        android:paddingHorizontal="24dp"
+        android:paddingHorizontal="36dp"
         android:visibility="visible">
 
         <ImageButton
@@ -126,7 +126,7 @@
             android:layout_weight="1"
             android:background="#00FFFFFF"
             android:contentDescription="@string/main_activity_reload_devices"
-            android:src="@android:drawable/ic_popup_sync"
+            android:src="@drawable/ic_refresh"
             android:tooltipText="@string/main_activity_reload_devices"
             android:visibility="gone" />
 
@@ -137,7 +137,7 @@
             android:layout_weight="1"
             android:background="#00FFFFFF"
             android:contentDescription="@string/main_activity_new_group"
-            android:src="@android:drawable/ic_input_add"
+            android:src="@drawable/ic_add"
             android:tooltipText="@string/main_activity_new_group"
             android:visibility="gone" />
 
@@ -148,7 +148,7 @@
             android:layout_weight="1"
             android:background="#00FFFFFF"
             android:contentDescription="@string/main_activity_del_group"
-            android:src="@android:drawable/ic_delete"
+            android:src="@drawable/ic_delete"
             android:tooltipText="@string/main_activity_del_group"
             android:visibility="gone" />
 
