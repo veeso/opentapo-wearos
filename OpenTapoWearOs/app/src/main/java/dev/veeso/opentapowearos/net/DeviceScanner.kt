@@ -9,7 +9,7 @@ class DeviceScanner(username: String, password: String) {
 
     private val username: String
     private val password: String
-    private var addressToSearch: List<String>? = null
+    private var addressToSearch: List<String> = listOf()
 
     val devices: MutableList<Device>
 
@@ -27,15 +27,18 @@ class DeviceScanner(username: String, password: String) {
     }
 
     fun scanNetwork(deviceIp: String, deviceMask: String) {
-        // get address to fetch
-        val addressToFetch = if (this.addressToSearch != null) {
-            this.addressToSearch!!.map {
+        doScanNetwork(buildNetworkAddressList(deviceIp, deviceMask))
+    }
+
+    fun scanNetwork() {
+        doScanNetwork(
+            this.addressToSearch.map {
                 Inet4Address.getByName(it) as Inet4Address
             }
-        } else {
-            buildNetworkAddressList(deviceIp, deviceMask)
-        }
+        )
+    }
 
+    private fun doScanNetwork(addressToFetch: List<Inet4Address>) {
         val scanners = addressToFetch.map {
             DeviceScannerWorker(it, username, password)
         }
