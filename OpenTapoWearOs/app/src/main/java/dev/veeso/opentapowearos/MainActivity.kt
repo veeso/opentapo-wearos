@@ -50,6 +50,7 @@ class MainActivity : Activity() {
     // states
     private var state: ActivityState = ActivityState.LOADING_DEVICE_LIST
     private var selectedDevices: MutableList<String> = mutableListOf()
+    private var selectedGroups: MutableList<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,14 +83,26 @@ class MainActivity : Activity() {
             reloadDeviceState()
         }
 
-        // add reload listener
+        // Button listeners
+        Log.d(TAG, "Setting up button listeners")
+        Log.d(TAG, "Configuring reload icon listener")
         val reloadIcon: ImageButton = findViewById(R.id.activity_main_reload)
         reloadIcon.setOnClickListener {
             onReloadDeviceList()
         }
+        Log.d(TAG, "Configuring new group icon listener")
         val newGroupIcon: ImageButton = findViewById(R.id.activity_main_new_group)
         newGroupIcon.setOnClickListener {
-            onCreateNewGroup()
+            if (this.selectedDevices.isNotEmpty()) {
+                onCreateNewGroup()
+            }
+        }
+        Log.d(TAG, "Configuring delete group icon listener")
+        val delGroupIcon: ImageButton = findViewById(R.id.activity_main_del_group)
+        delGroupIcon.setOnClickListener {
+            if (this.selectedGroups.isNotEmpty()) {
+                onDeleteGroups()
+            }
         }
     }
 
@@ -129,6 +142,8 @@ class MainActivity : Activity() {
         // save changes
         commitDeviceGroups()
         populateGroupsList()
+        this.selectedGroups.clear()
+        toggleDelGroupIcon(visible = false)
         toggleNewGroupIcon(visible = false)
     }
 
@@ -159,6 +174,21 @@ class MainActivity : Activity() {
         )
         this.selectedDevices.clear()
         startActivityForResult(newGroupIntent, 1)
+    }
+
+    private fun onDeleteGroups() {
+        Log.d(TAG, "onDeleteGroups")
+        Log.d(TAG, String.format("Removing groups %s", this.selectedGroups))
+        this.selectedGroups.forEach {
+            Log.d(TAG, String.format("Removing group %s", it))
+            this.deviceGroups.remove(it)
+        }
+        // commit changes
+        this.commitDeviceGroups()
+        Log.d(TAG, "Groups removed")
+        this.selectedGroups.clear()
+        toggleDelGroupIcon(visible = false)
+        populateGroupsList()
     }
 
     private fun onNullCredentials() {
@@ -313,6 +343,7 @@ class MainActivity : Activity() {
         toggleLists(visible = true)
         toggleReloadIcon(visible = true)
         toggleNewGroupIcon(visible = false)
+        toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = false)
         toggleLoading(loading = false)
         toggleAlert(visible = false)
@@ -323,6 +354,7 @@ class MainActivity : Activity() {
         toggleLists(visible = false)
         toggleReloadIcon(visible = false)
         toggleNewGroupIcon(visible = false)
+        toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = true)
         toggleLoading(loading = true)
         toggleAlert(visible = false)
@@ -333,6 +365,7 @@ class MainActivity : Activity() {
         toggleLists(visible = false)
         toggleReloadIcon(visible = true)
         toggleNewGroupIcon(visible = false)
+        toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = true)
         toggleLoading(loading = false)
         toggleAlert(visible = true, R.string.main_activity_not_found)
@@ -343,6 +376,7 @@ class MainActivity : Activity() {
         toggleLists(visible = false)
         toggleReloadIcon(visible = true)
         toggleNewGroupIcon(visible = false)
+        toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = true)
         toggleLoading(loading = false)
         toggleAlert(visible = true, R.string.main_activity_no_network)
@@ -418,6 +452,18 @@ class MainActivity : Activity() {
                         }
                     }
                     TODO("start activity")
+                }
+                groupsAdapter.onItemLongClick = {
+                    Log.d(TAG, String.format("On long click for %s", it))
+                    if (this.selectedGroups.contains(it)) {
+                        this.selectedGroups.remove(it)
+                        if (this.selectedGroups.isEmpty()) {
+                            this.toggleDelGroupIcon(visible = false)
+                        }
+                    } else {
+                        this.selectedGroups.add(it)
+                        this.toggleDelGroupIcon(visible = true)
+                    }
                 }
             }
         }
@@ -503,6 +549,17 @@ class MainActivity : Activity() {
                 newGroupIcon.visibility = View.VISIBLE
             } else {
                 newGroupIcon.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun toggleDelGroupIcon(visible: Boolean) {
+        runOnUiThread {
+            val delGroupIcon: ImageButton = findViewById(R.id.activity_main_del_group)
+            if (visible) {
+                delGroupIcon.visibility = View.VISIBLE
+            } else {
+                delGroupIcon.visibility = View.GONE
             }
         }
     }

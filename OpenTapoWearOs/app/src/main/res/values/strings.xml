@@ -12,6 +12,7 @@
     <string name="main_activity_no_network">Could not connect to local WiFi network</string>
     <string name="main_activity_reload_devices">Reload device list</string>
     <string name="main_activity_new_group">Create new group</string>
+    <string name="main_activity_del_group">Remove selected groups</string>
     <string name="login_activity_email">Email Address</string>
     <string name="login_activity_email_input">enter email</string>
     <string name="login_activity_password">Password</string>

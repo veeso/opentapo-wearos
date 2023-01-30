@@ -116,7 +116,7 @@
         android:gravity="center_horizontal|bottom"
         android:orientation="horizontal"
         android:paddingTop="16dp"
-        android:paddingHorizontal="20dp"
+        android:paddingHorizontal="24dp"
         android:visibility="visible">
 
         <ImageButton
@@ -139,6 +139,17 @@
             android:contentDescription="@string/main_activity_new_group"
             android:src="@android:drawable/ic_input_add"
             android:tooltipText="@string/main_activity_new_group"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/activity_main_del_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#00FFFFFF"
+            android:contentDescription="@string/main_activity_del_group"
+            android:src="@android:drawable/ic_delete"
+            android:tooltipText="@string/main_activity_del_group"
             android:visibility="gone" />
 
     </LinearLayout>

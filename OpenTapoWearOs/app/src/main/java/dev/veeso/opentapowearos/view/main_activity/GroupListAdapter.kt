@@ -1,5 +1,6 @@
 package dev.veeso.opentapowearos.view.main_activity
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,8 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
     RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
 
     var onItemClick: ((String) -> Unit)? = null
+    var onItemLongClick: ((String) -> Unit)? = null
+    var selected: Boolean = false
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val groupNameText: TextView = view.findViewById(R.id.group_list_item_name)
@@ -25,6 +28,10 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
         init {
             itemView.setOnClickListener {
                 onItemClick?.invoke(groups[bindingAdapterPosition].first)
+            }
+            itemView.setOnLongClickListener {
+                onLongClick(it, bindingAdapterPosition)
+                true
             }
         }
     }
@@ -59,6 +66,18 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
         return groups.size
     }
 
+    private fun onLongClick(view: View, adapterPosition: Int) {
+        Log.d(TAG, "OnLongClick")
+        selected = !selected
+        val backgroundColor = if (selected) {
+            SELECTED_COLOR
+        } else {
+            UNSELECTED_COLOR
+        }
+        view.setBackgroundColor(Color.parseColor(backgroundColor))
+        onItemLongClick?.invoke(groups[adapterPosition].first)
+    }
+
     private fun setPowerState(devices: List<Device>, powerState: Boolean) {
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
@@ -83,6 +102,8 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
 
     companion object {
         const val TAG = "GroupListAdapter"
+        const val SELECTED_COLOR = "#AB2196F3"
+        const val UNSELECTED_COLOR = "#00000000"
     }
 
 }
