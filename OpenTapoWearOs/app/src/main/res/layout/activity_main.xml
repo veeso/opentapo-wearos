@@ -65,13 +65,48 @@
             android:visibility="visible" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/activity_main_device_list"
+
+    <ScrollView
+        android:id="@+id/activity_main_lists"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingHorizontal="32dp"
+        android:orientation="vertical"
         android:paddingVertical="32dp"
-        app:layoutManager="LinearLayoutManager" />
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/activity_main_group_list_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/main_activity_groups"
+                android:textSize="14sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/activity_main_group_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="LinearLayoutManager" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/main_activity_devices"
+                android:textSize="14sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/activity_main_device_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="LinearLayoutManager" />
+        </LinearLayout>
+    </ScrollView>
 
 
     <LinearLayout
@@ -81,6 +116,7 @@
         android:gravity="center_horizontal|bottom"
         android:orientation="horizontal"
         android:paddingTop="16dp"
+        android:paddingHorizontal="24dp"
         android:visibility="visible">
 
         <ImageButton
@@ -89,9 +125,31 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="#00FFFFFF"
-            android:contentDescription="@string/reload_device_list"
+            android:contentDescription="@string/main_activity_reload_devices"
             android:src="@android:drawable/ic_popup_sync"
             android:tooltipText="@string/main_activity_reload_devices"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/activity_main_new_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#00FFFFFF"
+            android:contentDescription="@string/main_activity_new_group"
+            android:src="@android:drawable/ic_input_add"
+            android:tooltipText="@string/main_activity_new_group"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/activity_main_del_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#00FFFFFF"
+            android:contentDescription="@string/main_activity_del_group"
+            android:src="@android:drawable/ic_delete"
+            android:tooltipText="@string/main_activity_del_group"
             android:visibility="gone" />
 
     </LinearLayout>

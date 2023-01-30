@@ -3,7 +3,7 @@ package dev.veeso.opentapowearos.tapo.device
 import android.util.Log
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetLightBulbDeviceInfoParams
 import dev.veeso.opentapowearos.tapo.api.tapo.request.params.SetRgbLightBulbDeviceInfoParams
-import dev.veeso.opentapowearos.view.Color
+import dev.veeso.opentapowearos.view.device_activity.Color
 
 class L630(
     deviceAlias: String,
@@ -36,14 +36,6 @@ class L630(
                 color_temp = colorTemp
             )
         )
-    }
-
-    suspend fun setHueSaturation(hue: Int, saturation: Int) {
-        TODO("impl")
-    }
-
-    suspend fun setColorTemperature(colorTemp: Int) {
-        TODO("impl")
     }
 
 }

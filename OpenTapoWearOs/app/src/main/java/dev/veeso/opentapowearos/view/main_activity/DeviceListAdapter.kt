@@ -1,5 +1,6 @@
-package dev.veeso.opentapowearos.view
+package dev.veeso.opentapowearos.view.main_activity
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,14 +11,15 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.DeviceActivity
 import dev.veeso.opentapowearos.R
 import dev.veeso.opentapowearos.tapo.device.Device
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
+@OptIn(DelicateCoroutinesApi::class)
 internal class DeviceListAdapter(private val devices: List<Device>) :
     RecyclerView.Adapter<DeviceListAdapter.ViewHolder>() {
 
     var onItemClick: ((Device) -> Unit)? = null
+    var onItemLongClick: ((Device) -> Unit)? = null
+    var selected: Boolean = false
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val deviceAliasText: TextView = view.findViewById(R.id.device_list_item_alias)
@@ -27,6 +29,10 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
         init {
             itemView.setOnClickListener {
                 onItemClick?.invoke(devices[bindingAdapterPosition])
+            }
+            itemView.setOnLongClickListener {
+                onLongClick(it, bindingAdapterPosition)
+                true
             }
         }
     }
@@ -56,16 +62,41 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
         return devices.size
     }
 
+    private fun onLongClick(view: View, adapterPosition: Int) {
+        Log.d(TAG, "OnLongClick")
+        selected = !selected
+        val backgroundColor = if (selected) {
+            SELECTED_COLOR
+        } else {
+            UNSELECTED_COLOR
+        }
+        view.setBackgroundColor(Color.parseColor(backgroundColor))
+        onItemLongClick?.invoke(devices[adapterPosition])
+    }
+
     private fun setPowerState(device: Device, powerState: Boolean) {
-        runBlocking {
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                if (powerState) {
-                    device.on()
-                } else {
-                    device.off()
+                try {
+                    if (powerState) {
+                        device.on()
+                    } else {
+                        device.off()
+                    }
+                } catch (e: Exception) {
+                    Log.d(
+                        TAG,
+                        String.format("Failed to set power state for %s: %s", device.alias, e)
+                    )
                 }
             }
         }
+    }
+
+    companion object {
+        const val TAG = "DeviceListAdapter"
+        const val SELECTED_COLOR = "#AB2196F3"
+        const val UNSELECTED_COLOR = "#00000000"
     }
 
 }

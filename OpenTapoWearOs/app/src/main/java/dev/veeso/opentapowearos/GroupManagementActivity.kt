@@ -9,81 +9,90 @@ import dev.veeso.opentapowearos.tapo.device.*
 import dev.veeso.opentapowearos.view.device_activity.Color
 import dev.veeso.opentapowearos.view.device_activity.Color.Companion.COLOR_LIST
 import dev.veeso.opentapowearos.view.intent_data.Credentials
-import dev.veeso.opentapowearos.view.intent_data.DeviceData
+import dev.veeso.opentapowearos.view.intent_data.GroupData
 import kotlinx.coroutines.*
 
 
 @OptIn(DelicateCoroutinesApi::class)
-class DeviceActivity : Activity() {
+class GroupManagementActivity : Activity() {
 
-    private lateinit var device: Device
+    private lateinit var groupName: String
+    private lateinit var devices: List<Device>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_device)
+        setContentView(R.layout.activity_group_management)
     }
 
     override fun onResume() {
         super.onResume()
 
-        val deviceData = intent.getParcelableExtra<DeviceData>(DEVICE_DATA_INTENT_NAME)
+        val groupData = intent.getParcelableExtra<GroupData>(GROUP_DATA_INTENT_NAME)
         val credentials = intent.getParcelableExtra<Credentials>(CREDENTIALS_INTENT_NAME)
-        if (deviceData != null && credentials != null) {
-            Log.d(TAG, String.format("Found device %s", deviceData.alias))
-            setDeviceFromData(deviceData)
+        if (groupData != null && credentials != null) {
+            this.groupName = groupData.groupName
+            Log.d(TAG, String.format("Found groups %s", groupData))
+            setDevicesFromData(groupData)
             login(credentials)
             populateView()
         } else {
-            Log.d(TAG, "Intent device data was empty; terminating activity")
+            Log.d(TAG, "Intent group data was empty; terminating activity")
             setResult(RESULT_CANCELED)
             finish()
         }
     }
 
-    private fun setDeviceFromData(deviceData: DeviceData) {
-        this.device = DeviceBuilder.buildDevice(
-            deviceData.alias,
-            deviceData.id,
-            deviceData.model,
-            deviceData.endpoint,
-            deviceData.ipAddress,
-            deviceData.status
-        )
+    private fun setDevicesFromData(groupData: GroupData) {
+        this.devices = groupData.devices.map {
+            DeviceBuilder.buildDevice(
+                it.alias,
+                it.id,
+                it.model,
+                it.endpoint,
+                it.ipAddress,
+                it.status
+            )
+        }
     }
 
     private fun login(credentials: Credentials) {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                if (!device.authenticated) {
-                    device.login(credentials.username, credentials.password)
+                devices.forEach {
+                    if (!it.authenticated) {
+                        it.login(credentials.username, credentials.password)
+                    }
                 }
-                fetchDeviceState()
+                fetchDevicesState()
                 setLoading(false)
             }
         }
     }
 
     private fun populateView() {
-        val aliasText: TextView = findViewById(R.id.device_activity_alias)
-        aliasText.text = device.alias
-        val modelText: TextView = findViewById(R.id.device_activity_model)
-        modelText.text = device.model.toString()
+        val nameText: TextView = findViewById(R.id.group_management_name)
+        nameText.text = groupName
 
         // switch ON/OFF
-        val powerState: Switch = findViewById(R.id.device_activity_power)
-        setPowerView(device.status.deviceOn)
-        powerState.setOnCheckedChangeListener { _, isChecked ->
-            Log.d(TAG, String.format("Changing power state for %s to %s", device.alias, isChecked))
+        val powerStateSwitch: Switch = findViewById(R.id.group_management_power)
+        val powerState = devices.all { it.status.deviceOn }
+        setPowerView(powerState)
+        powerStateSwitch.setOnCheckedChangeListener { _, isChecked ->
+            Log.d(TAG, String.format("Changing power state for %s to %s", groupName, isChecked))
             setPowerView(isChecked)
             setPowerState(isChecked)
         }
         // brightness
-        val brightnessSeekBar: SeekBar = findViewById(R.id.device_activity_brightness)
-        if (device.type == DeviceType.LIGHT_BULB || device.type == DeviceType.RGB_LIGHT_BULB) {
+        val brightnessSeekBar: SeekBar = findViewById(R.id.group_management_brightness)
+        val hasBrightness = this.devices.any {
+            it.type == DeviceType.LIGHT_BULB || it.type == DeviceType.RGB_LIGHT_BULB
+        }
+        if (hasBrightness) {
             brightnessSeekBar.visibility = View.VISIBLE
-            setBrightnessView(device.status.brightness ?: 1)
+            val brightnessValue = this.devices.maxOf { it.status.brightness ?: 1 }
+            setBrightnessView(brightnessValue)
             brightnessSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
@@ -102,8 +111,11 @@ class DeviceActivity : Activity() {
             brightnessSeekBar.visibility = View.GONE
         }
         // color
-        val colorList: Spinner = findViewById(R.id.device_activity_color)
-        if (device.type == DeviceType.RGB_LIGHT_BULB) {
+        val colorList: Spinner = findViewById(R.id.group_management_color)
+        val hasColor = this.devices.any {
+            it.type == DeviceType.RGB_LIGHT_BULB
+        }
+        if (hasColor) {
             colorList.visibility = View.VISIBLE
             val adapter =
                 ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, COLOR_LIST)
@@ -131,19 +143,21 @@ class DeviceActivity : Activity() {
         }
     }
 
-    private fun fetchDeviceState() {
+    private fun fetchDevicesState() {
         Log.d(TAG, "Fetching device state...")
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                try {
-                    val deviceInfo = device.getDeviceStatus()
-                    setPowerView(deviceInfo.deviceOn)
-                    if (deviceInfo.brightness != null) {
-                        setBrightnessView(deviceInfo.brightness)
+                devices.forEach {
+                    try {
+                        val deviceInfo = it.getDeviceStatus()
+                        setPowerView(deviceInfo.deviceOn)
+                        if (deviceInfo.brightness != null) {
+                            setBrightnessView(deviceInfo.brightness)
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, String.format("failed to collect device state: %s", e))
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, String.format("failed to collect device state: %s", e))
                 }
                 setLoading(false)
             }
@@ -152,9 +166,9 @@ class DeviceActivity : Activity() {
 
     private fun setPowerView(state: Boolean) {
         runOnUiThread {
-            val powerState: Switch = findViewById(R.id.device_activity_power)
+            val powerState: Switch = findViewById(R.id.group_management_power)
             powerState.isChecked = state
-            val powerLabel: TextView = findViewById(R.id.device_activity_power_label)
+            val powerLabel: TextView = findViewById(R.id.group_management_power_label)
             powerLabel.text = String.format(
                 resources.getString(R.string.device_activity_power), if (state) {
                     resources.getString(R.string.device_activity_power_on)
@@ -168,13 +182,13 @@ class DeviceActivity : Activity() {
     private fun setBrightnessView(brightness: Int) {
         runOnUiThread {
             val brightnessLabel: TextView =
-                findViewById(R.id.device_activity_brightness_label)
+                findViewById(R.id.group_management_brightness_label)
             brightnessLabel.text =
                 String.format(
                     resources.getString(R.string.device_activity_brightness),
                     brightness
                 )
-            val brightnessSeekBar: SeekBar = findViewById(R.id.device_activity_brightness)
+            val brightnessSeekBar: SeekBar = findViewById(R.id.group_management_brightness)
             brightnessSeekBar.progress = brightness
         }
     }
@@ -183,18 +197,20 @@ class DeviceActivity : Activity() {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                try {
-                    if (state) {
-                        device.on()
-                    } else {
-                        device.off()
+                devices.forEach {
+                    try {
+                        if (state) {
+                            it.on()
+                        } else {
+                            it.off()
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, String.format("Failed to set power state: %s", e))
+                        // revert state
+                        setPowerView(!state)
                     }
-                    fetchDeviceState()
-                } catch (e: Exception) {
-                    Log.e(TAG, String.format("Failed to set power state: %s", e))
-                    // revert state
-                    setPowerView(!state)
                 }
+                fetchDevicesState()
                 setLoading(false)
             }
         }
@@ -204,28 +220,31 @@ class DeviceActivity : Activity() {
         setLoading(true)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                try {
-                    when (device) {
-                        is L510 -> {
-                            (device as L510).setBrightness(brightness)
+                devices.forEach {
+                    try {
+                        when (it) {
+                            is L510 -> {
+                                it.setBrightness(brightness)
+                            }
+                            is L520 -> {
+                                it.setBrightness(brightness)
+                            }
+                            is L530 -> {
+                                it.setBrightness(brightness)
+                            }
+                            is L610 -> {
+                                it.setBrightness(brightness)
+                            }
+                            is L630 -> {
+                                it.setBrightness(brightness)
+                            }
+                            else -> {}
                         }
-                        is L520 -> {
-                            (device as L520).setBrightness(brightness)
-                        }
-                        is L530 -> {
-                            (device as L530).setBrightness(brightness)
-                        }
-                        is L610 -> {
-                            (device as L610).setBrightness(brightness)
-                        }
-                        is L630 -> {
-                            (device as L630).setBrightness(brightness)
-                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, String.format("Failed to set brightness: %s", e))
                     }
-                    fetchDeviceState()
+                    fetchDevicesState()
                     setPowerView(true)
-                } catch (e: Exception) {
-                    Log.e(TAG, String.format("Failed to set brightness: %s", e))
                 }
                 setLoading(false)
             }
@@ -237,19 +256,23 @@ class DeviceActivity : Activity() {
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    when (device) {
-                        is L530 -> {
-                            (device as L530).setColor(color)
-                        }
-                        is L630 -> {
-                            (device as L630).setColor(color)
+                    devices.forEach {
+                        when (it) {
+                            is L530 -> {
+                                (it).setColor(color)
+                            }
+                            is L630 -> {
+                                (it).setColor(color)
+                            }
+                            else -> {}
                         }
                     }
-                    fetchDeviceState()
-                    setPowerView(true)
+
                 } catch (e: Exception) {
                     Log.e(TAG, String.format("Failed to set color: %s", e))
                 }
+                fetchDevicesState()
+                setPowerView(true)
                 setLoading(false)
             }
         }
@@ -258,8 +281,8 @@ class DeviceActivity : Activity() {
 
     private fun setLoading(loading: Boolean) {
         runOnUiThread {
-            val dataLayout: LinearLayout = findViewById(R.id.device_activity_data)
-            val loadingLayout: LinearLayout = findViewById(R.id.device_activity_wait)
+            val dataLayout: LinearLayout = findViewById(R.id.group_management_data)
+            val loadingLayout: LinearLayout = findViewById(R.id.group_management_activity_wait)
             if (loading) {
                 dataLayout.visibility = View.GONE
                 loadingLayout.visibility = View.VISIBLE
@@ -272,7 +295,7 @@ class DeviceActivity : Activity() {
 
     companion object {
         const val TAG = "DeviceActivity"
-        const val DEVICE_DATA_INTENT_NAME = "DeviceData"
+        const val GROUP_DATA_INTENT_NAME = "GroupData"
         const val CREDENTIALS_INTENT_NAME = "Credentials"
     }
 

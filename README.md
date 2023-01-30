@@ -32,6 +32,11 @@
       src="https://img.shields.io/badge/donate-ko--fi-red"
       alt="Ko-fi"
   /></a>
+   <a href="https://github.com/veeso/opentapo-wearos/actions"
+    ><img
+      src="https://github.com/veeso/opentapo-wearos/workflows/Android%20CI/badge.svg"
+      alt="Android CI"
+  /></a>
 </p>
 
 ---
