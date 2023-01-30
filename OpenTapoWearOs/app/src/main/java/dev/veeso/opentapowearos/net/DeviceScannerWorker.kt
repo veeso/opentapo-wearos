@@ -25,19 +25,21 @@ class DeviceScannerWorker(address: Inet4Address, username: String, password: Str
     }
 
     override fun run() {
-        val client = TapoClient(address)
         runBlocking {
             withContext(Dispatchers.IO) {
-                try {
-                    client.login(username, password)
-                    Log.d(
-                        tag,
-                        "Successfully signed in to device; getting device info..."
-                    )
-                    device = client.queryDevice()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.e(tag, String.format("Discovery failed: %s", e))
+                if (address.isReachable(10000)) {
+                    val client = TapoClient(address)
+                    try {
+                        client.login(username, password)
+                        Log.d(
+                            tag,
+                            "Successfully signed in to device; getting device info..."
+                        )
+                        device = client.queryDevice()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Log.e(tag, String.format("Discovery failed: %s", e))
+                    }
                 }
             }
         }
