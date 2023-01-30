@@ -120,6 +120,25 @@ body {
   background: #12b6ec;
 }
 
+.gallery {
+  align-items: center;
+  display: grid;
+  gap: 64px;
+  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%/2, max(64px, 100%/3)), 1fr)
+  );
+  justify-items: center;
+  width: 80%;
+}
+
+.gallery--image img {
+  height: auto;
+  max-height: 80vh;
+  width: auto;
+}
+
 /** footer */
 
 .footer {

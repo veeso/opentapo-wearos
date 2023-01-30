@@ -12,7 +12,7 @@
         android:paddingVertical="32dp">
 
         <LinearLayout
-            android:id="@+id/device_activity_wait"
+            android:id="@+id/group_management_activity_wait"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -27,7 +27,7 @@
                 android:indeterminate="true" />
 
             <TextView
-                android:id="@+id/activity_main_message"
+                android:id="@+id/group_management__message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -39,7 +39,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/device_activity_data"
+            android:id="@+id/group_management_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -47,21 +47,14 @@
             android:visibility="visible">
 
             <TextView
-                android:id="@+id/device_activity_alias"
+                android:id="@+id/group_management_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/device_activity_model"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/device_activity_power_label"
+                android:id="@+id/group_management_power_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/defines_the_brightness_value_for_seek_bar"
@@ -70,7 +63,7 @@
                 android:textSize="12sp" />
 
             <Switch
-                android:id="@+id/device_activity_power"
+                android:id="@+id/group_management_power"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -83,7 +76,7 @@
                 android:background="?android:attr/listDivider" />
 
             <TextView
-                android:id="@+id/device_activity_brightness_label"
+                android:id="@+id/group_management_brightness_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/defines_the_brightness_value_for_seek_bar"
@@ -92,7 +85,7 @@
                 android:textSize="12sp" />
 
             <SeekBar
-                android:id="@+id/device_activity_brightness"
+                android:id="@+id/group_management_brightness"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:indeterminate="false"
@@ -107,7 +100,7 @@
                 android:background="?android:attr/listDivider" />
 
             <Spinner
-                android:id="@+id/device_activity_color"
+                android:id="@+id/group_management_color"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="24dp"

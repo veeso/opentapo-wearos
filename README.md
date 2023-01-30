@@ -8,13 +8,13 @@
 <p align="center">
   <a href="https://opentapo.veeso.dev" target="_blank">Website</a>
   ·
-  <a href="#get-started" target="_blank">Installation</a>
+  <a href="#get-started-" target="_blank">Installation</a>
   ·
   <a href="https://veeso.dev" target="_blank">About me</a>
 </p>
 
 <p align="center">Developed by <a href="https://veeso.dev/" target="_blank">@veeso</a></p>
-<p align="center">Current version: 0.1.0 (24/01/2023)</p>
+<p align="center">Current version: 0.2.0 (30/01/2023)</p>
 
 <p align="center">
   <a href="https://opensource.org/licenses/GPL-3.0"
@@ -31,6 +31,11 @@
     <img
       src="https://img.shields.io/badge/donate-ko--fi-red"
       alt="Ko-fi"
+  /></a>
+   <a href="https://github.com/veeso/opentapo-wearos/actions"
+    ><img
+      src="https://github.com/veeso/opentapo-wearos/workflows/Android%20CI/badge.svg"
+      alt="Android CI"
   /></a>
 </p>
 
@@ -51,14 +56,15 @@ OpenTapo WearOS is a WearOS app to control your TpLink Tapo plugs and light bulb
   - Set power state
   - Set lamp brightness
   - Set lamp color
+- Group your devices to easily control them as a group
 
 ---
 
 ## Get started 🚀
 
-Get it from [Google Play]()
+Get it on [Google Play](https://play.google.com/store/apps/details?id=dev.veeso.opentapowearos&hl=en_US&gl=US&utm_source=github&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1)
 
-[![google-play](assets/images/google-play.png)](https://veeso.dev)
+[![google-play](assets/images/google-play.png)](https://play.google.com/store/apps/details?id=dev.veeso.opentapowearos&hl=en_US&gl=US&utm_source=github&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1)
 
 ---
 
@@ -79,8 +85,6 @@ You can make a donation with one of these platforms:
 Contributions, bug reports, new features and questions are welcome! 😉
 If you have any question or concern, or you want to suggest a new feature, or you want just want to improve opentapo-wearos, feel free to open an issue or a PR.
 
-An **appreciated** contribution would be a translation of the user manual and readme in **other languages**
-
 Please follow [our contributing guidelines](CONTRIBUTING.md)
 
 ---
@@ -96,3 +100,5 @@ View opentapo-wearos's changelog [HERE](CHANGELOG.md)
 OpenTapo WearOS is licensed under the GNU/GPL3 license.
 
 You can read the entire license [HERE](LICENSE)
+
+Google Play and the Google Play logo are trademarks of Google LLC.

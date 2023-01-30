@@ -3,6 +3,7 @@ package dev.veeso.opentapowearos.tapo.device
 import android.os.Parcel
 import android.os.Parcelable
 
+@kotlinx.serialization.Serializable
 data class DeviceStatus(
     val deviceOn: Boolean,
     val brightness: Int? = null,

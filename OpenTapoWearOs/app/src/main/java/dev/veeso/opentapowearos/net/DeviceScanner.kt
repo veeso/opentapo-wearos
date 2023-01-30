@@ -1,9 +1,7 @@
 package dev.veeso.opentapowearos.net
 
 import android.util.Log
-import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.device.Device
-import kotlinx.coroutines.*
 import java.net.Inet4Address
 
 
@@ -11,7 +9,6 @@ class DeviceScanner(username: String, password: String) {
 
     private val username: String
     private val password: String
-    private var addressToSearch: List<String>? = null
 
     val devices: MutableList<Device>
 
@@ -21,23 +18,11 @@ class DeviceScanner(username: String, password: String) {
         this.devices = mutableListOf()
     }
 
-    constructor(username: String, password: String, addressToSearch: List<String>) : this(
-        username,
-        password
-    ) {
-        this.addressToSearch = addressToSearch.sorted()
+    fun scanNetwork(deviceIp: String, deviceMask: String) {
+        doScanNetwork(buildNetworkAddressList(deviceIp, deviceMask))
     }
 
-    fun scanNetwork(deviceIp: String, deviceMask: String) {
-        // get address to fetch
-        val addressToFetch = if (this.addressToSearch != null) {
-            this.addressToSearch!!.map {
-                Inet4Address.getByName(it) as Inet4Address
-            }
-        } else {
-            buildNetworkAddressList(deviceIp, deviceMask)
-        }
-
+    private fun doScanNetwork(addressToFetch: List<Inet4Address>) {
         val scanners = addressToFetch.map {
             DeviceScannerWorker(it, username, password)
         }

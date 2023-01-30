@@ -5,16 +5,21 @@
     values-round/strings.xml for round devices.
     -->
     <string name="main_activity_title">Tapo Devices</string>
+    <string name="main_activity_devices">Devices</string>
+    <string name="main_activity_groups">Device Groups</string>
     <string name="main_activity_loading">Searching for Tapo devices…</string>
     <string name="main_activity_not_found">Could not find any Tapo device</string>
     <string name="main_activity_no_network">Could not connect to local WiFi network</string>
     <string name="main_activity_reload_devices">Reload device list</string>
+    <string name="main_activity_new_group">Create new group</string>
+    <string name="main_activity_del_group">Remove selected groups</string>
     <string name="login_activity_email">Email Address</string>
     <string name="login_activity_email_input">enter email</string>
     <string name="login_activity_password">Password</string>
     <string name="login_activity_password_input">enter password</string>
     <string name="login_activity_save_password">Save password</string>
     <string name="login_activity_submit">Sign In</string>
+    <string name="login_activity_submit_loading">Trying to sign in…</string>
     <string name="activity_login_signin_error">Invalid username or password</string>
     <string name="activity_login_input_field_empty">You must provide valid credentials</string>
     <string name="device_activity_power">Power: %s</string>
@@ -25,5 +30,9 @@
     <string name="device_activity_wait">Please wait…</string>
     <string name="activity_main_not_found">no device found</string>
     <string name="defines_the_brightness_value_for_seek_bar">defines the brightness value for seek bar</string>
-    <string name="reload_device_list">reload device list</string>
+    <string name="new_group_activity_title">Create new group for %d devices</string>
+    <string name="new_group_activity_group_name">Enter group name</string>
+    <string name="new_group_activity_group_name_placeholder">living room</string>
+    <string name="new_group_activity_group_name_error_empty_name">Group name cannot be empty</string>
+    <string name="new_group_activity_group_name_error_duped">A group with this name already exists</string>
 </resources>

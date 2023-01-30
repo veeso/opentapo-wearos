@@ -1,8 +1,6 @@
 package dev.veeso.opentapowearos.net
 
-import android.util.Log
 import java.net.Inet4Address
-import java.net.UnknownHostException
 import kotlin.experimental.and
 import kotlin.experimental.or
 import kotlin.experimental.xor
@@ -42,23 +40,6 @@ class NetworkUtils {
             return Inet4Address.getByAddress(newAddress) as Inet4Address
         }
 
-        /**
-         * Converts a MAC address with TAPO syntax (e.g. 11CE6AE69422) to correct notation (11:ce:6a:e6:94:22)
-         */
-        fun convertMacFromTapo(macAddress: String): String {
-            Log.d(TAG, String.format("Converting MAC address: %s", macAddress))
-            val octets = listOf(
-                macAddress.substring(0, 2).lowercase(),
-                macAddress.substring(2, 4).lowercase(),
-                macAddress.substring(4, 6).lowercase(),
-                macAddress.substring(6, 8).lowercase(),
-                macAddress.substring(8, 10).lowercase(),
-                macAddress.substring(10, 12).lowercase(),
-            )
-
-            return octets.joinToString(":")
-        }
-
         fun cidrToNetmask(prefixLength: Int): String {
             val octets = Array(4) { 0 }
             octets[0] = (256 - 2.0.pow(8 - netmaskModule(prefixLength))).toInt()
@@ -96,8 +77,6 @@ class NetworkUtils {
         private fun octetStrToByte(octet: String): Byte {
             return octet.toInt().toByte()
         }
-
-        private const val TAG = "NetworkUtils"
 
     }
 

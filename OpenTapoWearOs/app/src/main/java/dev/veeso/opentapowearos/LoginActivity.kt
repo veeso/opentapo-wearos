@@ -8,25 +8,26 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
-import dev.veeso.opentapowearos.view.Credentials
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import dev.veeso.opentapowearos.view.intent_data.Credentials
+import dev.veeso.opentapowearos.view.login_activity.ActivityState
+import kotlinx.coroutines.*
 
+@OptIn(DelicateCoroutinesApi::class)
 class LoginActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.login_activity)
+        setContentView(R.layout.activity_login)
 
-        val passwordText: EditText = findViewById(R.id.signin_password)
-        passwordText.setOnEditorActionListener { v, actionId, _ ->
+        val passwordText: EditText = findViewById(R.id.activity_login_password)
+        passwordText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onSignIn(v)
+                onSignIn()
                 true
             } else {
                 false
@@ -44,18 +45,18 @@ class LoginActivity : Activity() {
     override fun onPause() {
         super.onPause()
 
-        val usernameText: EditText = findViewById(R.id.signin_username)
-        val passwordText: EditText = findViewById(R.id.signin_password)
-        val errorLabel: TextView = findViewById(R.id.error_label)
+        val usernameText: EditText = findViewById(R.id.activity_login_username)
+        val passwordText: EditText = findViewById(R.id.activity_login_password)
+        val errorLabel: TextView = findViewById(R.id.activity_login_error_label)
         usernameText.setText("")
         passwordText.setText("")
         errorLabel.visibility = View.INVISIBLE
     }
 
-    fun onSignIn(view: View) {
-        val usernameText: EditText = findViewById(R.id.signin_username)
-        val passwordText: EditText = findViewById(R.id.signin_password)
-        val savePasswordToggle: Switch = findViewById(R.id.signin_save_password)
+    private fun onSignIn() {
+        val usernameText: EditText = findViewById(R.id.activity_login_username)
+        val passwordText: EditText = findViewById(R.id.activity_login_password)
+        val savePasswordToggle: Switch = findViewById(R.id.activity_login_save_password)
 
         val username = usernameText.text.toString()
         val password = passwordText.text.toString()
@@ -78,9 +79,11 @@ class LoginActivity : Activity() {
     }
 
     private fun setError(message: String) {
-        val errorLabel: TextView = findViewById(R.id.error_label)
-        errorLabel.text = message
-        errorLabel.visibility = View.VISIBLE
+        runOnUiThread {
+            val errorLabel: TextView = findViewById(R.id.activity_login_error_label)
+            errorLabel.text = message
+            errorLabel.visibility = View.VISIBLE
+        }
     }
 
     private fun saveCredentialsToPrefs(username: String, password: String, savePassword: Boolean) {
@@ -101,19 +104,20 @@ class LoginActivity : Activity() {
 
         if (sharedPrefs.contains(MainActivity.SHARED_PREFS_USERNAME)) {
             val username = sharedPrefs.getString(MainActivity.SHARED_PREFS_USERNAME, "")
-            val usernameText: EditText = findViewById(R.id.signin_username)
+            val usernameText: EditText = findViewById(R.id.activity_login_username)
             usernameText.setText(username)
         }
         if (sharedPrefs.contains(MainActivity.SHARED_PREFS_PASSWORD)) {
             val password = sharedPrefs.getString(MainActivity.SHARED_PREFS_PASSWORD, "")
-            val passwordText: EditText = findViewById(R.id.signin_password)
+            val passwordText: EditText = findViewById(R.id.activity_login_password)
             passwordText.setText(password)
         }
     }
 
     private fun doSignIn(username: String, password: String, savePassword: Boolean) {
+        setViewState(ActivityState.SIGNING_IN)
         val intent = Intent()
-        runBlocking {
+        GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 try {
                     val credentials = login(username, password)
@@ -121,16 +125,16 @@ class LoginActivity : Activity() {
                     saveCredentialsToPrefs(username, password, savePassword)
                     // return to main activity
                     intent.putExtra(INTENT_OUTPUT, credentials)
+                    setViewState(ActivityState.LOGIN_FORM)
+                    setResult(RESULT_OK, intent)
+                    finish()
                 } catch (e: Exception) {
                     Log.d(TAG, String.format("Login failed: %s", e))
-                    runOnUiThread {
-                        setError(getString(R.string.activity_login_signin_error))
-                    }
+                    setError(getString(R.string.activity_login_signin_error))
+                    setViewState(ActivityState.LOGIN_FORM)
                 }
             }
         }
-        setResult(RESULT_OK, intent)
-        finish()
     }
 
     private suspend fun login(username: String, password: String): Credentials {
@@ -138,6 +142,34 @@ class LoginActivity : Activity() {
         client.login(username, password)
 
         return Credentials(username, password)
+    }
+
+    private fun setViewState(state: ActivityState) {
+        Log.d(TAG, String.format("Entering new view state: %s", state))
+        when (state) {
+            ActivityState.LOGIN_FORM -> enterLoginForm()
+            ActivityState.SIGNING_IN -> enterSigningIn()
+        }
+    }
+
+    private fun enterLoginForm() {
+        runOnUiThread {
+            Log.d(TAG, "Entering login form state")
+            val loginLayout: LinearLayout = findViewById(R.id.activity_login_login_layout)
+            val loadingLayout: LinearLayout = findViewById(R.id.login_activity_loading_layout)
+            loginLayout.visibility = View.VISIBLE
+            loadingLayout.visibility = View.GONE
+        }
+    }
+
+    private fun enterSigningIn() {
+        runOnUiThread {
+            Log.d(TAG, "Entering signing-in")
+            val loginLayout: LinearLayout = findViewById(R.id.activity_login_login_layout)
+            val loadingLayout: LinearLayout = findViewById(R.id.login_activity_loading_layout)
+            loginLayout.visibility = View.GONE
+            loadingLayout.visibility = View.VISIBLE
+        }
     }
 
     companion object {
