@@ -142,7 +142,7 @@ class MainActivity : Activity() {
 
     private fun onReloadDeviceList() {
         Log.d(TAG, "onReloadDeviceList")
-        deleteCachedDeviceAddressList()
+        deleteCachedDeviceList()
         setActivityState(ActivityState.LOADING_DEVICE_LIST)
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
@@ -269,7 +269,7 @@ class MainActivity : Activity() {
                 devices.clear()
                 // check what kind of scan we need to make
                 val cachedDeviceList = getCachedDeviceAddressList()
-                if (cachedDeviceList == null || cachedDeviceList.isEmpty() && deviceNetwork == null) {
+                if ((cachedDeviceList == null || cachedDeviceList.isEmpty()) && deviceNetwork == null) {
                     // do scan with wifi
                     discoverDevicesOnLocalNetworkWithWifi()
                 } else {
@@ -284,14 +284,8 @@ class MainActivity : Activity() {
         val cachedDeviceList = getCachedDeviceAddressList()
         this.devices = if (cachedDeviceList != null && cachedDeviceList.isNotEmpty()) {
             Log.d(TAG, String.format("Found %d cached devices for scanner", cachedDeviceList.size))
-            Log.d(TAG, "Running ip discovery service")
-            val scanner = DeviceScanner(
-                credentials!!.username,
-                credentials!!.password,
-                cachedDeviceList
-            )
-            scanner.scanNetwork()
-            scanner.devices
+            Log.d(TAG, "Creating device list from cached devices")
+            cachedDeviceList.toMutableList()
         } else {
             Log.d(TAG, "Getting local address")
             Log.d(TAG, "Running ip discovery service")
@@ -304,7 +298,7 @@ class MainActivity : Activity() {
         }
         Log.d(TAG, String.format("Found %d devices", this.devices.size))
         // cache devices
-        setCachedDeviceAddressList(devices.map { it.ipAddress })
+        setCachedDeviceList()
         // set activity state
         if (devices.isNotEmpty()) {
             setActivityState(ActivityState.DEVICE_LIST)
@@ -370,8 +364,6 @@ class MainActivity : Activity() {
         throw Exception("No link")
     }
 
-// device states
-
     private fun setActivityState(state: ActivityState) {
         this.state = state
         when (this.state) {
@@ -434,6 +426,7 @@ class MainActivity : Activity() {
             deviceList.adapter = devicesAdapter
             deviceList.layoutManager = LinearLayoutManager(this)
 
+            devicesAdapter.credentials = credentials!!
             devicesAdapter.onItemClick = {
                 Log.d(
                     TAG,
@@ -485,6 +478,7 @@ class MainActivity : Activity() {
                 groupsList.adapter = groupsAdapter
                 groupsList.layoutManager = LinearLayoutManager(this)
 
+                groupsAdapter.credentials = credentials!!
                 groupsAdapter.onItemClick = {
                     Log.d(
                         TAG,
@@ -658,35 +652,35 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun getCachedDeviceAddressList(): List<String>? {
+    private fun getCachedDeviceAddressList(): List<Device>? {
         Log.d(TAG, "Trying to retrieve cached device list from shared preferences")
         val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
-        if (sharedPrefs.contains(SHARED_PREFS_DEVICE_ADDRESS)) {
-            val cachedDevices = sharedPrefs.getString(SHARED_PREFS_DEVICE_ADDRESS, "")
+        if (sharedPrefs.contains(SHARED_PREFS_CACHED_DEVICES)) {
+            val cachedDevices = sharedPrefs.getString(SHARED_PREFS_CACHED_DEVICES, "")
             Log.d(TAG, String.format("Found device list: %s", cachedDevices))
             return DeviceCache(cachedDevices!!).devices()
         }
         return null
     }
 
-    private fun setCachedDeviceAddressList(deviceList: List<String>) {
-        Log.d(TAG, "Writing ip list to preferences")
+    private fun setCachedDeviceList() {
+        Log.d(TAG, "Writing cached device list to preferences")
         val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
         val editor = sharedPrefs.edit()
-        val payload = DeviceCache(deviceList)
-        editor.putString(SHARED_PREFS_DEVICE_ADDRESS, payload.serialize())
+        val payload = DeviceCache(this.devices)
+        editor.putString(SHARED_PREFS_CACHED_DEVICES, payload.serialize())
         editor.apply()
         Log.d(TAG, String.format("Device list written as %s", payload))
     }
 
     @SuppressLint("ApplySharedPref")
-    private fun deleteCachedDeviceAddressList() {
-        Log.d(TAG, "Deleting ip list from preferences")
+    private fun deleteCachedDeviceList() {
+        Log.d(TAG, "Deleting cached device list from preferences")
         val sharedPrefs = getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
         val editor = sharedPrefs.edit()
-        editor.remove(SHARED_PREFS_DEVICE_ADDRESS)
+        editor.remove(SHARED_PREFS_CACHED_DEVICES)
         editor.commit()
-        Log.d(TAG, "Device address cleared")
+        Log.d(TAG, "Device cached list cleared")
     }
 
     private fun getDeviceGroups() {
@@ -713,7 +707,7 @@ class MainActivity : Activity() {
         const val SHARED_PREFS = "OpenTapoWearOs"
         const val SHARED_PREFS_USERNAME = "username"
         const val SHARED_PREFS_PASSWORD = "password"
-        const val SHARED_PREFS_DEVICE_ADDRESS = "deviceAddressList"
+        const val SHARED_PREFS_CACHED_DEVICES = "cachedDeviceList"
         const val SHARED_PREFS_DEVICE_GROUPS = "deviceGroups"
     }
 

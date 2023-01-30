@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.DeviceActivity
 import dev.veeso.opentapowearos.R
 import dev.veeso.opentapowearos.tapo.device.Device
+import dev.veeso.opentapowearos.view.intent_data.Credentials
 import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -20,6 +21,7 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
     var onItemClick: ((Device) -> Unit)? = null
     var onItemLongClick: ((Device) -> Unit)? = null
     var selected: Boolean = false
+    lateinit var credentials: Credentials
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val deviceAliasText: TextView = view.findViewById(R.id.device_list_item_alias)
@@ -78,6 +80,10 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 try {
+                    if (!device.authenticated) {
+                        Log.d(TAG, String.format("Device %s is not authenticated yet; signing in", device.alias))
+                        device.login(credentials.username, credentials.password)
+                    }
                     if (powerState) {
                         device.on()
                     } else {

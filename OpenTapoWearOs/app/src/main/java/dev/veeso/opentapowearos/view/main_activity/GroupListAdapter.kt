@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.veeso.opentapowearos.DeviceActivity
 import dev.veeso.opentapowearos.R
 import dev.veeso.opentapowearos.tapo.device.Device
+import dev.veeso.opentapowearos.view.intent_data.Credentials
 import kotlinx.coroutines.*
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -20,6 +21,7 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
     var onItemClick: ((String) -> Unit)? = null
     var onItemLongClick: ((String) -> Unit)? = null
     var selected: Boolean = false
+    lateinit var credentials: Credentials
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val groupNameText: TextView = view.findViewById(R.id.group_list_item_name)
@@ -91,6 +93,16 @@ internal class GroupListAdapter(private val groups: List<Pair<String, List<Devic
                         )
                     )
                     try {
+                        if (!it.authenticated) {
+                            Log.d(
+                                DeviceListAdapter.TAG,
+                                String.format(
+                                    "Device %s is not authenticated yet; signing in",
+                                    it.alias
+                                )
+                            )
+                            it.login(credentials.username, credentials.password)
+                        }
                         if (powerState) {
                             it.on()
                         } else {
