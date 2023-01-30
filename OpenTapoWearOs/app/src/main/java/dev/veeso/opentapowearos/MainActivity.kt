@@ -20,12 +20,10 @@ import dev.veeso.opentapowearos.net.DeviceScanner
 import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.tapo.device.Device
-import dev.veeso.opentapowearos.view.intent_data.Credentials
 import dev.veeso.opentapowearos.view.app_data.DeviceCache
 import dev.veeso.opentapowearos.view.app_data.DeviceGroups
-import dev.veeso.opentapowearos.view.intent_data.DeviceData
-import dev.veeso.opentapowearos.view.intent_data.NewGroupInput
-import dev.veeso.opentapowearos.view.intent_data.NewGroupOutput
+import dev.veeso.opentapowearos.view.intent_data.*
+import dev.veeso.opentapowearos.view.intent_data.Credentials
 import dev.veeso.opentapowearos.view.main_activity.ActivityState
 import dev.veeso.opentapowearos.view.main_activity.DeviceListAdapter
 import dev.veeso.opentapowearos.view.main_activity.GroupListAdapter
@@ -451,7 +449,23 @@ class MainActivity : Activity() {
                             device.id == id
                         }
                     }
-                    TODO("start activity")
+                    val intent = Intent(this, GroupManagementActivity::class.java)
+                    intent.putExtra(
+                        GroupManagementActivity.GROUP_DATA_INTENT_NAME,
+                        GroupData(it, devices.map { device ->
+                            DeviceData(
+                                device.alias,
+                                device.id,
+                                device.model,
+                                device.endpoint,
+                                device.ipAddress,
+                                device.status
+                            )
+                        }
+                        )
+                    )
+                    intent.putExtra(GroupManagementActivity.CREDENTIALS_INTENT_NAME, credentials)
+                    startActivity(intent)
                 }
                 groupsAdapter.onItemLongClick = {
                     Log.d(TAG, String.format("On long click for %s", it))
