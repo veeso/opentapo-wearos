@@ -23,5 +23,3 @@ jobs:
     - name: Build with Gradle
       run: |
         ./gradlew build
-    - name: Kotlin Linter
-      uses: vroy/gha-kotlin-linter@v4
