@@ -104,14 +104,6 @@
                 android:textColor="#F44336"
                 android:textSize="14sp"
                 android:visibility="gone" />
-
-            <Button
-                android:id="@+id/activity_login_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#2196F3"
-                android:onClick="onSignIn"
-                android:text="@string/login_activity_submit" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

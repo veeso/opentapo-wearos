@@ -1,9 +1,7 @@
 package dev.veeso.opentapowearos.net
 
 import android.util.Log
-import dev.veeso.opentapowearos.tapo.api.tapo.TapoClient
 import dev.veeso.opentapowearos.tapo.device.Device
-import kotlinx.coroutines.*
 import java.net.Inet4Address
 
 

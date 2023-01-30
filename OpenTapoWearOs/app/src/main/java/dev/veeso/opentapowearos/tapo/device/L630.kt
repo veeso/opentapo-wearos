@@ -38,12 +38,4 @@ class L630(
         )
     }
 
-    suspend fun setHueSaturation(hue: Int, saturation: Int) {
-        TODO("impl")
-    }
-
-    suspend fun setColorTemperature(colorTemp: Int) {
-        TODO("impl")
-    }
-
 }

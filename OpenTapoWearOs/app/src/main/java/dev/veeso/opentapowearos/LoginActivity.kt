@@ -25,9 +25,9 @@ class LoginActivity : Activity() {
         setContentView(R.layout.activity_login)
 
         val passwordText: EditText = findViewById(R.id.activity_login_password)
-        passwordText.setOnEditorActionListener { v, actionId, _ ->
+        passwordText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                onSignIn(v)
+                onSignIn()
                 true
             } else {
                 false
@@ -53,7 +53,7 @@ class LoginActivity : Activity() {
         errorLabel.visibility = View.INVISIBLE
     }
 
-    fun onSignIn(view: View) {
+    private fun onSignIn() {
         val usernameText: EditText = findViewById(R.id.activity_login_username)
         val passwordText: EditText = findViewById(R.id.activity_login_password)
         val savePasswordToggle: Switch = findViewById(R.id.activity_login_save_password)
