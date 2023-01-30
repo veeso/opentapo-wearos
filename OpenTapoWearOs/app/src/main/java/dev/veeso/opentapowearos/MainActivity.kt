@@ -73,13 +73,7 @@ class MainActivity : Activity() {
             Log.d(TAG, "Credentials are null; handling null credentials")
             onNullCredentials()
         } else {
-            if (devices.isEmpty()) {
-                Log.d(TAG, "Device list is empty; discover devices")
-                discoverDevices()
-            }
-            // reload device state
-            Log.d(TAG, "Credentials are set; reloading device state...")
-            reloadDeviceState()
+            onCredentials()
         }
 
         // Button listeners
@@ -196,19 +190,30 @@ class MainActivity : Activity() {
 
         // if still NULL; try to read from intent
         if (this.credentials != null) {
-            try {
-                discoverDevices()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e(TAG, String.format("Failed to discover devices: %s", e))
-                setActivityState(ActivityState.NO_DEVICE_FOUND)
-            }
+            onCredentials()
         } else {
             Log.d(
                 TAG,
                 "Credentials not in intent and not in preferences. Starting LoginActivity"
             )
             startActivityForResult(Intent(this, LoginActivity::class.java), 1)
+        }
+    }
+
+    private fun onCredentials() {
+        try {
+            if (devices.isEmpty()) {
+                Log.d(TAG, "Device list is empty; discover devices")
+                discoverDevices()
+            } else {
+                // reload device state
+                Log.d(TAG, "Credentials are set; reloading device state...")
+                reloadDeviceState()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e(TAG, String.format("Failed to discover devices: %s", e))
+            setActivityState(ActivityState.NO_DEVICE_FOUND)
         }
     }
 
@@ -254,7 +259,7 @@ class MainActivity : Activity() {
         val client = TpLinkCloudClient()
         client.login(username, password)
         this.credentials = Credentials(username, password)
-        discoverDevices()
+        onCredentials()
     }
 
     private fun discoverDevices() {
