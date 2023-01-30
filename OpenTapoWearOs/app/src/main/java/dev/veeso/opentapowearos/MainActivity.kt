@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -419,7 +420,7 @@ class MainActivity : Activity() {
     private fun toggleLists(visible: Boolean) {
         runOnUiThread {
             Log.d(TAG, "toggle lists")
-            val lists: LinearLayout = findViewById(R.id.activity_main_lists)
+            val lists: ScrollView = findViewById(R.id.activity_main_lists)
 
             if (visible) {
                 lists.visibility = View.VISIBLE

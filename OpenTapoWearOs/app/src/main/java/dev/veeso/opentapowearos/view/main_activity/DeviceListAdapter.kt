@@ -1,5 +1,6 @@
 package dev.veeso.opentapowearos.view.main_activity
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
 
     var onItemClick: ((Device) -> Unit)? = null
     var onItemLongClick: ((Device) -> Unit)? = null
+    var selected: Boolean = false
 
     internal inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val deviceAliasText: TextView = view.findViewById(R.id.device_list_item_alias)
@@ -29,7 +31,7 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
                 onItemClick?.invoke(devices[bindingAdapterPosition])
             }
             itemView.setOnLongClickListener {
-                onItemLongClick?.invoke(devices[bindingAdapterPosition])
+                onLongClick(it, bindingAdapterPosition)
                 true
             }
         }
@@ -60,6 +62,18 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
         return devices.size
     }
 
+    private fun onLongClick(view: View, adapterPosition: Int) {
+        Log.d(TAG, "OnLongClick")
+        selected = !selected
+        val backgroundColor = if (selected) {
+            SELECTED_COLOR
+        } else {
+            UNSELECTED_COLOR
+        }
+        view.setBackgroundColor(Color.parseColor(backgroundColor))
+        onItemLongClick?.invoke(devices[adapterPosition])
+    }
+
     private fun setPowerState(device: Device, powerState: Boolean) {
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
@@ -70,6 +84,12 @@ internal class DeviceListAdapter(private val devices: List<Device>) :
                 }
             }
         }
+    }
+
+    companion object {
+        const val TAG = "DeviceListAdapter"
+        const val SELECTED_COLOR = "#AB2196F3"
+        const val UNSELECTED_COLOR = "#00000000"
     }
 
 }
