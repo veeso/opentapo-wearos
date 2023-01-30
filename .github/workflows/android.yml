@@ -22,7 +22,6 @@ jobs:
       uses: fwilhe2/setup-kotlin@0.2.0
     - name: Build with Gradle
       run: |
-        cd ./OpenTapoWearOs
         ./gradlew build
     - name: Kotlin Linter
       uses: vroy/gha-kotlin-linter@v4
