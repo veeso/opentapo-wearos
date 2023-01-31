@@ -9,7 +9,6 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="24dp"
-        android:visibility="gone"
         android:paddingVertical="24dp">
 
         <LinearLayout
@@ -17,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <ProgressBar
@@ -51,7 +51,6 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:lines="2"
-                android:paddingHorizontal="24dp"
                 android:text="@string/device_setup_activity_title"
                 android:textSize="18sp" />
 

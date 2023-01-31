@@ -165,6 +165,7 @@ class MainActivity : Activity() {
         // check if device already exists
         if (this.devices.all { it.id != device.id }) {
             this.devices.add(device)
+            setCachedDeviceList()
             setActivityState(ActivityState.DEVICE_LIST)
         }
     }

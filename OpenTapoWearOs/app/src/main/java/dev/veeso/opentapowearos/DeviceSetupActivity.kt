@@ -23,12 +23,14 @@ class DeviceSetupActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate")
 
         setContentView(R.layout.activity_device_setup)
     }
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume")
         val credentials = intent.getParcelableExtra<Credentials>(INTENT_INPUT)
         if (credentials != null) {
             this.credentials = credentials
@@ -41,6 +43,7 @@ class DeviceSetupActivity : Activity() {
                     false
                 }
             }
+            setActivityState(ActivityState.FORM)
         } else {
             Log.d(TAG, "Intent credentials was empty; terminating activity")
             setResult(RESULT_CANCELED)
