@@ -21,6 +21,7 @@ import dev.veeso.opentapowearos.net.DeviceScanner
 import dev.veeso.opentapowearos.net.NetworkUtils
 import dev.veeso.opentapowearos.tapo.api.tplinkcloud.TpLinkCloudClient
 import dev.veeso.opentapowearos.tapo.device.Device
+import dev.veeso.opentapowearos.tapo.device.DeviceBuilder
 import dev.veeso.opentapowearos.view.app_data.DeviceCache
 import dev.veeso.opentapowearos.view.app_data.DeviceGroups
 import dev.veeso.opentapowearos.view.intent_data.*
@@ -81,20 +82,25 @@ class MainActivity : Activity() {
         Log.d(TAG, "Configuring reload icon listener")
         val reloadIcon: ImageButton = findViewById(R.id.activity_main_reload)
         reloadIcon.setOnClickListener {
-            onReloadDeviceList()
+            onReloadDeviceListClick()
+        }
+        Log.d(TAG, "Configuring new device icon listener")
+        val newDeviceIcon: ImageButton = findViewById(R.id.activity_main_new_device)
+        newDeviceIcon.setOnClickListener {
+            onNewDeviceClick()
         }
         Log.d(TAG, "Configuring new group icon listener")
         val newGroupIcon: ImageButton = findViewById(R.id.activity_main_new_group)
         newGroupIcon.setOnClickListener {
             if (this.selectedDevices.isNotEmpty()) {
-                onCreateNewGroup()
+                onCreateNewGroupClick()
             }
         }
         Log.d(TAG, "Configuring delete group icon listener")
         val delGroupIcon: ImageButton = findViewById(R.id.activity_main_del_group)
         delGroupIcon.setOnClickListener {
             if (this.selectedGroups.isNotEmpty()) {
-                onDeleteGroups()
+                onDeleteGroupsClick()
             }
         }
     }
@@ -119,6 +125,10 @@ class MainActivity : Activity() {
             if (groups is NewGroupOutput) {
                 onNewGroupActivityResult(groups)
             }
+            val newDevice = data.getParcelableExtra<DeviceData>(DeviceSetupActivity.INTENT_OUTPUT)
+            if (newDevice is DeviceData) {
+                onDeviceSetupActivityResult(newDevice)
+            }
         }
     }
 
@@ -141,7 +151,25 @@ class MainActivity : Activity() {
         toggleNewGroupIcon(visible = false)
     }
 
-    private fun onReloadDeviceList() {
+    private fun onDeviceSetupActivityResult(deviceData: DeviceData) {
+        Log.d(TAG, String.format("Got DeviceSetup activity result: %s", deviceData))
+        // convert device data to device
+        val device = DeviceBuilder.buildDevice(
+            alias = deviceData.alias,
+            deviceId = deviceData.id,
+            model = deviceData.model,
+            endpoint = deviceData.endpoint,
+            ipAddress = deviceData.ipAddress,
+            deviceStatus = deviceData.status,
+        )
+        // check if device already exists
+        if (this.devices.all { it.id != device.id }) {
+            this.devices.add(device)
+            setActivityState(ActivityState.DEVICE_LIST)
+        }
+    }
+
+    private fun onReloadDeviceListClick() {
         Log.d(TAG, "onReloadDeviceList")
         deleteCachedDeviceList()
         setActivityState(ActivityState.LOADING_DEVICE_LIST)
@@ -152,7 +180,14 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun onCreateNewGroup() {
+    private fun onNewDeviceClick() {
+        Log.d(TAG, "onNewDeviceClick")
+        val newDeviceIntent = Intent(this, DeviceSetupActivity::class.java)
+        newDeviceIntent.putExtra(DeviceSetupActivity.INTENT_INPUT, credentials)
+        startActivityForResult(newDeviceIntent, 1)
+    }
+
+    private fun onCreateNewGroupClick() {
         Log.d(TAG, "onCreateNewGroup")
         val newGroupIntent = Intent(this, NewGroupActivity::class.java)
         val devicesInGroup = this.selectedDevices.toList()
@@ -170,7 +205,7 @@ class MainActivity : Activity() {
         startActivityForResult(newGroupIntent, 1)
     }
 
-    private fun onDeleteGroups() {
+    private fun onDeleteGroupsClick() {
         Log.d(TAG, "onDeleteGroups")
         Log.d(TAG, String.format("Removing groups %s", this.selectedGroups))
         this.selectedGroups.forEach {
@@ -382,6 +417,7 @@ class MainActivity : Activity() {
         Log.d(TAG, "Entering device list state")
         toggleLists(visible = true)
         toggleReloadIcon(visible = true)
+        toggleNewDeviceIcon(visible = true)
         toggleNewGroupIcon(visible = false)
         toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = false)
@@ -392,6 +428,7 @@ class MainActivity : Activity() {
     private fun enterLoadingDeviceListState() {
         Log.d(TAG, "Entering loading devices state")
         toggleLists(visible = false)
+        toggleNewDeviceIcon(visible = false)
         toggleReloadIcon(visible = false)
         toggleNewGroupIcon(visible = false)
         toggleDelGroupIcon(visible = false)
@@ -404,6 +441,7 @@ class MainActivity : Activity() {
         Log.d(TAG, "Entering no device found state")
         toggleLists(visible = false)
         toggleReloadIcon(visible = true)
+        toggleNewDeviceIcon(visible = true)
         toggleNewGroupIcon(visible = false)
         toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = true)
@@ -414,6 +452,7 @@ class MainActivity : Activity() {
     private fun enterNoLinkState() {
         Log.d(TAG, "Entering no link state")
         toggleLists(visible = false)
+        toggleNewDeviceIcon(visible = true)
         toggleReloadIcon(visible = true)
         toggleNewGroupIcon(visible = false)
         toggleDelGroupIcon(visible = false)
@@ -596,6 +635,17 @@ class MainActivity : Activity() {
                 reloadIcon.visibility = View.VISIBLE
             } else {
                 reloadIcon.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun toggleNewDeviceIcon(visible: Boolean) {
+        runOnUiThread {
+            val icon: ImageButton = findViewById(R.id.activity_main_new_device)
+            if (visible) {
+                icon.visibility = View.VISIBLE
+            } else {
+                icon.visibility = View.GONE
             }
         }
     }

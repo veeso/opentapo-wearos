@@ -34,6 +34,9 @@
             android:name=".DeviceActivity"
             android:exported="true" />
         <activity
+            android:name=".DeviceSetupActivity"
+            android:exported="true" />
+        <activity
             android:name=".GroupManagementActivity"
             android:exported="true" />
         <activity

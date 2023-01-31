@@ -11,6 +11,7 @@
     <string name="main_activity_not_found">Could not find any Tapo device</string>
     <string name="main_activity_no_network">Could not connect to local WiFi network</string>
     <string name="main_activity_reload_devices">Reload device list</string>
+    <string name="main_activity_setup_new_device">Add new device</string>
     <string name="main_activity_new_group">Create new group</string>
     <string name="main_activity_del_group">Remove selected groups</string>
     <string name="login_activity_email">Email Address</string>
@@ -38,4 +39,9 @@
     <string name="device_setup_activity_title">Add new device</string>
     <string name="device_setup_activity_device_address">Enter device IP address</string>
     <string name="device_setup_activity_device_address_hint">192.168.178.32</string>
+    <string name="device_setup_activity_error_bad_address">You entered a bad address</string>
+    <string name="device_setup_activity_error_unreachable">Provided host is unreachable</string>
+    <string name="device_setup_activity_error_handhshake_failed">Could not configure host as a Tapo device</string>
+    <string name="device_setup_activity_loading_reachable">Trying to connect to provided host</string>
+    <string name="device_setup_activity_loading_setup">Trying to setup device</string>
 </resources>
