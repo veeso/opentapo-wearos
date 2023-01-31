@@ -27,7 +27,7 @@ class DeviceScannerWorker(address: Inet4Address, username: String, password: Str
     override fun run() {
         runBlocking {
             withContext(Dispatchers.IO) {
-                if (address.isReachable(10000)) {
+                if (address.isReachable(5000)) {
                     val client = TapoClient(address)
                     try {
                         client.login(username, password)
