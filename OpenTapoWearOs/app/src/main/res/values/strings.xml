@@ -35,4 +35,7 @@
     <string name="new_group_activity_group_name_placeholder">living room</string>
     <string name="new_group_activity_group_name_error_empty_name">Group name cannot be empty</string>
     <string name="new_group_activity_group_name_error_duped">A group with this name already exists</string>
+    <string name="device_setup_activity_title">Add new device</string>
+    <string name="device_setup_activity_device_address">Enter device IP address</string>
+    <string name="device_setup_activity_device_address_hint">192.168.178.32</string>
 </resources>

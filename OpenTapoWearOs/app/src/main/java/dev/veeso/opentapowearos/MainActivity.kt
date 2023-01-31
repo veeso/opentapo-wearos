@@ -63,7 +63,7 @@ class MainActivity : Activity() {
         super.onResume()
         Log.d(TAG, "onResume")
 
-        setActivityState(ActivityState.LOADING_DEVICE_LIST)
+        setActivityState(ActivityState.NO_DEVICE_FOUND)
 
         // get groups
         this.getDeviceGroups()
@@ -203,13 +203,16 @@ class MainActivity : Activity() {
 
     private fun onCredentials() {
         try {
-            if (devices.isEmpty()) {
-                Log.d(TAG, "Device list is empty; discover devices")
+            val cachedDevices = getCachedDeviceAddressList()
+            if (this.devices.isNotEmpty()) {
+                Log.d(TAG, "Credentials are set and devices too; reloading device state...")
+                reloadDeviceState()
+            } else if (cachedDevices != null && cachedDevices.isNotEmpty()) {
+                Log.d(TAG, "Cached devices is NOT empty; discover devices")
                 discoverDevices()
             } else {
-                // reload device state
-                Log.d(TAG, "Credentials are set; reloading device state...")
-                reloadDeviceState()
+                // set no device
+                setActivityState(ActivityState.NO_DEVICE_FOUND)
             }
         } catch (e: Exception) {
             e.printStackTrace()

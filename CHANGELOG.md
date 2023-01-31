@@ -13,6 +13,8 @@ Released on 30/01/2023
   - Added the possibility to remove created groups
 - Speeded up device scanner
 - Improved icon graphics
+- No automatic device scan
+- Possibility to manually add devices by IP address
 
 ## 0.1.0
 
