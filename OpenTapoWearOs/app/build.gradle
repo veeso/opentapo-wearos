@@ -17,7 +17,7 @@ android {
         minSdk 30
         targetSdk 32
         // version code "xxxx" (major, minor, patch, build). e.g. 0.2.1 1st build is (0)210
-        versionCode 202
+        versionCode 200
         versionName "0.2.0"
     }
 

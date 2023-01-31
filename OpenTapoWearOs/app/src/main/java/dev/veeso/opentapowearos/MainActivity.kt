@@ -134,8 +134,7 @@ class MainActivity : Activity() {
 
     private fun onLoginActivityResult(credentials: Credentials) {
         Log.d(TAG, "Got credentials from login activity")
-        if (this.credentials == null) {
-            Log.d(TAG, String.format("Set credentials: %s", credentials.username))
+        if (this.credentials != null) {
             this.credentials = credentials
         }
     }
