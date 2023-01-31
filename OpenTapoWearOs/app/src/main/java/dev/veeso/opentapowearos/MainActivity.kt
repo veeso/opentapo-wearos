@@ -616,7 +616,7 @@ class MainActivity : Activity() {
 
             if (visible) {
                 alertIcon.visibility = View.VISIBLE
-                alertIcon.setBackgroundResource(alertDrawable)
+                alertIcon.setImageResource(alertDrawable)
                 val messageView: TextView = findViewById(R.id.activity_main_message)
                 if (message != null) {
                     messageView.visibility = View.VISIBLE
