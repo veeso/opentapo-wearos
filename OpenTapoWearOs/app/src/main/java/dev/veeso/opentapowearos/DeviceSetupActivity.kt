@@ -3,6 +3,7 @@ package dev.veeso.opentapowearos
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -134,6 +135,7 @@ class DeviceSetupActivity : Activity() {
             val loadingLayout: LinearLayout = findViewById(R.id.device_setup_loading)
             formLayout.visibility = View.GONE
             loadingLayout.visibility = View.VISIBLE
+            toggleKeyboard(visible = false)
         }
     }
 
@@ -143,6 +145,7 @@ class DeviceSetupActivity : Activity() {
             val loadingLayout: LinearLayout = findViewById(R.id.device_setup_loading)
             formLayout.visibility = View.VISIBLE
             loadingLayout.visibility = View.GONE
+            toggleKeyboard(visible = true)
         }
     }
 
@@ -162,6 +165,18 @@ class DeviceSetupActivity : Activity() {
             val errorText: TextView = findViewById(R.id.device_setup_error)
             errorText.text = error
             errorText.visibility = View.VISIBLE
+        }
+    }
+
+    private fun toggleKeyboard(visible: Boolean) {
+        runOnUiThread {
+            val textInput = if (visible) {
+                InputType.TYPE_CLASS_TEXT
+            } else {
+                InputType.TYPE_NULL
+            }
+            val ipAddressText: EditText = findViewById(R.id.device_setup_ip_address)
+            ipAddressText.inputType = textInput
         }
     }
 

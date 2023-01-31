@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -159,6 +160,7 @@ class LoginActivity : Activity() {
             val loadingLayout: LinearLayout = findViewById(R.id.login_activity_loading_layout)
             loginLayout.visibility = View.VISIBLE
             loadingLayout.visibility = View.GONE
+            toggleKeyboard(visible = true)
         }
     }
 
@@ -169,6 +171,21 @@ class LoginActivity : Activity() {
             val loadingLayout: LinearLayout = findViewById(R.id.login_activity_loading_layout)
             loginLayout.visibility = View.GONE
             loadingLayout.visibility = View.VISIBLE
+            toggleKeyboard(visible = false)
+        }
+    }
+
+    private fun toggleKeyboard(visible: Boolean) {
+        runOnUiThread {
+            val textInput = if (visible) {
+                InputType.TYPE_CLASS_TEXT
+            } else {
+                InputType.TYPE_NULL
+            }
+            val inputFieldPassword: EditText = findViewById(R.id.activity_login_password)
+            inputFieldPassword.inputType = textInput
+            val inputFieldUsername: EditText = findViewById(R.id.activity_login_username)
+            inputFieldUsername.inputType = textInput
         }
     }
 
