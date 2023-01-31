@@ -8,39 +8,46 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.net.Inet4Address
 
-class DeviceScannerWorker(address: Inet4Address, username: String, password: String) : Runnable {
+class DeviceScannerWorker(addressList: List<Inet4Address>, username: String, password: String) :
+    Runnable {
 
-    private val address: Inet4Address
+    private val addressList: List<Inet4Address>
     private val username: String
     private val password: String
     private val tag: String
 
-    var device: Device? = null
+    var devices: MutableList<Device> = mutableListOf()
 
     init {
-        this.address = address
+        this.addressList = addressList
         this.username = username
         this.password = password
-        this.tag = String.format("DeviceScannerWorker[%s]", address.hostAddress!!)
+        this.tag = String.format("DeviceScannerWorker[%s]", addressList.getOrElse(0) {
+            Inet4Address.getByName("127.0.0.1")
+        }.hostAddress)
     }
 
     override fun run() {
         runBlocking {
             withContext(Dispatchers.IO) {
-                if (address.isReachable(10000)) {
-                    val client = TapoClient(address)
+                addressList.forEach { address ->
                     try {
-                        client.login(username, password)
-                        Log.d(
-                            tag,
-                            "Successfully signed in to device; getting device info..."
-                        )
-                        device = client.queryDevice()
+                        if (address.isReachable(3000)) {
+                            val client = TapoClient(address)
+
+                            client.login(username, password)
+                            Log.d(
+                                tag,
+                                "Successfully signed in to device; getting device info..."
+                            )
+                            devices.add(client.queryDevice())
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         Log.e(tag, String.format("Discovery failed: %s", e))
                     }
                 }
+
             }
         }
     }

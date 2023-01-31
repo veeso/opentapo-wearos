@@ -3,6 +3,7 @@ package dev.veeso.opentapowearos.net
 import android.util.Log
 import dev.veeso.opentapowearos.tapo.device.Device
 import java.net.Inet4Address
+import kotlin.math.ceil
 
 
 class DeviceScanner(username: String, password: String) {
@@ -23,7 +24,9 @@ class DeviceScanner(username: String, password: String) {
     }
 
     private fun doScanNetwork(addressToFetch: List<Inet4Address>) {
-        val scanners = addressToFetch.map {
+        val maxWorkers = ceil(addressToFetch.size / 16.0).toInt()
+        val scanners = addressToFetch.chunked(maxWorkers).map {
+            Log.d(TAG, String.format("Created a scanner with %d address to scan (%s)", it.size, it))
             DeviceScannerWorker(it, username, password)
         }
         // start threads
@@ -40,9 +43,7 @@ class DeviceScanner(username: String, password: String) {
         }
         // get devices
         scanners.forEach {
-            if (it.device != null) {
-                this.devices.add(it.device!!)
-            }
+            this.devices.addAll(it.devices)
         }
         Log.d(TAG, String.format("Scan terminated; found %d devices", this.devices.size))
     }
