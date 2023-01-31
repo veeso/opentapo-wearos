@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">Developed by <a href="https://veeso.dev/" target="_blank">@veeso</a></p>
-<p align="center">Current version: 0.2.0 (30/01/2023)</p>
+<p align="center">Current version: 0.2.0 (31/01/2023)</p>
 
 <p align="center">
   <a href="https://opensource.org/licenses/GPL-3.0"
@@ -57,6 +57,16 @@ OpenTapo WearOS is a WearOS app to control your TpLink Tapo plugs and light bulb
   - Set lamp brightness
   - Set lamp color
 - Group your devices to easily control them as a group
+
+## Supported Devices 💡
+
+- P100
+- P110
+- L510
+- L520
+- L530
+- L610
+- L630
 
 ---
 

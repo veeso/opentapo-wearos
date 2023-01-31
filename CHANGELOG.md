@@ -6,7 +6,7 @@
 
 ## 0.2.0
 
-Released on 30/01/2023
+Released on 31/01/2023
 
 - Device groups:
   - Added the possibility to create groups
