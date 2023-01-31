@@ -447,7 +447,7 @@ class MainActivity : Activity() {
         toggleDelGroupIcon(visible = false)
         toggleMessageBox(visible = true)
         toggleLoading(loading = false)
-        toggleAlert(visible = true, R.string.main_activity_not_found)
+        toggleAlert(visible = true, R.string.main_activity_not_found, R.drawable.ic_no_devices)
     }
 
     private fun enterNoLinkState() {
@@ -595,7 +595,7 @@ class MainActivity : Activity() {
 
     private fun toggleLoading(loading: Boolean) {
         runOnUiThread {
-            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+            val alertIcon: ImageView = findViewById(R.id.activity_main_error_icon)
             val progress: ProgressBar = findViewById(R.id.activity_main_progressbar)
             val message: TextView = findViewById(R.id.activity_main_message)
 
@@ -610,12 +610,13 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun toggleAlert(visible: Boolean, message: Int? = null) {
+    private fun toggleAlert(visible: Boolean, message: Int? = null, alertDrawable: Int = R.drawable.ic_warning) {
         runOnUiThread {
-            val alertIcon: ImageView = findViewById(R.id.activity_main_device_not_found)
+            val alertIcon: ImageView = findViewById(R.id.activity_main_error_icon)
 
             if (visible) {
                 alertIcon.visibility = View.VISIBLE
+                alertIcon.setBackgroundResource(alertDrawable)
                 val messageView: TextView = findViewById(R.id.activity_main_message)
                 if (message != null) {
                     messageView.visibility = View.VISIBLE
